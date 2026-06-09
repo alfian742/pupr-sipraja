@@ -1,5 +1,5 @@
 <x-app-layout>
-    @php $pageTitle = 'Edit' @endphp
+    @php $pageTitle = 'Edit Data Dokumen' @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 

@@ -1,5 +1,5 @@
 <x-app-layout>
-    @php $pageTitle = 'Tambah' @endphp
+    @php $pageTitle = 'Tambah Carousel' @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 

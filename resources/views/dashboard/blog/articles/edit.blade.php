@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $pageTitle = 'Edit';
+        $pageTitle = 'Edit Artikel';
         $defaultThumbnail = asset('public/assets/images/placeholder.svg');
         $currentThumbnail = $data->thumbnail ? asset('public/' . $data->thumbnail) : $defaultThumbnail;
         $publishedAt = $data->published_at ? $data->published_at->format('Y-m-d\TH:i') : null;
@@ -167,7 +167,7 @@
                                                         <div class="mb-2">
                                                             <img id="previewImage" src="{{ $currentThumbnail }}"
                                                                 class="d-block mx-auto rounded shadow-sm"
-                                                                style="height:260px; width:260px; object-fit: cover;">
+                                                                style="height:240px; aspect-ratio: 4 / 3; object-fit: cover;">
                                                         </div>
 
                                                         <div class="form-group">

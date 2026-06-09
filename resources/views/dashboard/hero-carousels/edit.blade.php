@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $pageTitle = 'Edit';
+        $pageTitle = 'Edit Carousel';
         $defaultImage = asset('public/assets/images/placeholder.svg');
         $currentImage = $data->image_path ? asset('public/' . $data->image_path) : $defaultImage;
     @endphp

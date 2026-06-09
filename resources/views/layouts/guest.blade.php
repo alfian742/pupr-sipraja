@@ -7,7 +7,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ isset($title) ? $title . ' | ' : '' }}{{ config('app.subname', 'Laravel') }}</title>
+    @php
+        $siteTitle = config('app.subname', 'Laravel');
+
+        $pageTitle = isset($title) && trim((string) $title) !== '' ? trim((string) $title) : '';
+
+        $seoTitle = $pageTitle !== '' ? $pageTitle . ' | ' . $siteTitle : $siteTitle;
+
+        $seoDescription = isset($metaDescription) ? trim((string) $metaDescription) : '';
+
+        $seoKeywords = isset($metaKeywords) ? trim((string) $metaKeywords) : '';
+
+        $seoImage = isset($metaImage) ? trim((string) $metaImage) : '';
+
+        $seoCanonical = isset($canonicalUrl) ? trim((string) $canonicalUrl) : '';
+
+        $seoType = isset($metaType) ? trim((string) $metaType) : '';
+
+        $seoPublishedTime = isset($metaPublishedTime) ? trim((string) $metaPublishedTime) : '';
+
+        $seoModifiedTime = isset($metaModifiedTime) ? trim((string) $metaModifiedTime) : '';
+    @endphp
+
+    <title>{{ $seoTitle }}</title>
+
+    @if ($seoDescription !== '')
+        <meta name="description" content="{{ $seoDescription }}">
+    @endif
+
+    @if ($seoKeywords !== '')
+        <meta name="keywords" content="{{ $seoKeywords }}">
+    @endif
+
+    @if ($seoCanonical !== '')
+        <link rel="canonical" href="{{ $seoCanonical }}">
+    @endif
+
+    {{-- Open Graph --}}
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:site_name" content="{{ $siteTitle }}">
+    <meta property="og:locale" content="id_ID">
+
+    @if ($seoDescription !== '')
+        <meta property="og:description" content="{{ $seoDescription }}">
+    @endif
+
+    @if ($seoType !== '')
+        <meta property="og:type" content="{{ $seoType }}">
+    @endif
+
+    @if ($seoCanonical !== '')
+        <meta property="og:url" content="{{ $seoCanonical }}">
+    @endif
+
+    @if ($seoImage !== '')
+        <meta property="og:image" content="{{ $seoImage }}">
+        <meta property="og:image:alt" content="{{ $pageTitle !== '' ? $pageTitle : $siteTitle }}">
+    @endif
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+
+    @if ($seoDescription !== '')
+        <meta name="twitter:description" content="{{ $seoDescription }}">
+    @endif
+
+    @if ($seoImage !== '')
+        <meta name="twitter:image" content="{{ $seoImage }}">
+    @endif
+
+    @if ($seoType === 'article')
+        @if ($seoPublishedTime !== '')
+            <meta property="article:published_time" content="{{ $seoPublishedTime }}">
+        @endif
+
+        @if ($seoModifiedTime !== '')
+            <meta property="article:modified_time" content="{{ $seoModifiedTime }}">
+        @endif
+    @endif
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" href="{{ asset('public/assets/images/logo-loteng-square.png') }}">
@@ -114,7 +192,8 @@
                 <img alt="Logo {{ config('app.subname', 'Laravel') }}"
                     src="{{ asset('public/assets/images/logo-pupr-loteng.png') }}" height="40">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarCollapse">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="navbar-collapse collapse" id="navbarCollapse">

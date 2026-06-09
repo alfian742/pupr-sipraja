@@ -50,7 +50,7 @@ class BlogArticleController extends Controller
                         : $defaultThumbnail;
 
                     return '<img src="' . asset($thumbnailPath) . '"
-                                style="height:80px; width:80px; object-fit: cover;"
+                                style="height:80px; aspect-ratio: 4 / 3; object-fit: cover;"
                                 class="rounded d-block mx-auto"
                                 loading="lazy"
                                 alt="' . e($data->title) . '">';

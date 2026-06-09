@@ -1,5 +1,5 @@
 <x-app-layout>
-    @php $pageTitle = 'Tambah' @endphp
+    @php $pageTitle = 'Tambah Kategori' @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 

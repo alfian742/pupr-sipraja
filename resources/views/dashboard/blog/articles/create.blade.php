@@ -1,5 +1,5 @@
 <x-app-layout>
-    @php $pageTitle = 'Tambah' @endphp
+    @php $pageTitle = 'Tambah Artikel' @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 
@@ -168,7 +168,7 @@
                                                             <img id="previewImage"
                                                                 src="{{ asset('public/assets/images/placeholder.svg') }}"
                                                                 class="d-block mx-auto rounded shadow-sm"
-                                                                style="height:260px; width:260px; object-fit: cover;">
+                                                                style="height:240px; aspect-ratio: 4 / 3; object-fit: cover;">
                                                         </div>
 
                                                         <div class="form-group mb-0">

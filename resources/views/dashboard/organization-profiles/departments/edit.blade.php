@@ -1,8 +1,8 @@
 <x-app-layout>
     @php
-        $pageTitle = 'Edit Hero Carousel';
-        $defaultImage = asset('public/assets/images/placeholder.svg');
-        $currentImage = $data->image_path ? asset('public/' . $data->image_path) : $defaultImage;
+        $pageTitle = 'Edit Bidang';
+        $defaultLogo = asset('public/assets/images/placeholder.svg');
+        $currentLogo = $data->logo ? asset('public/' . $data->logo) : $defaultLogo;
     @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
@@ -26,7 +26,8 @@
                             <div class="card-body card-dashboard">
                                 @include('layouts.partials.alert')
 
-                                <form class="form" action="{{ route('dashboard.hero-carousels.update', $data->id) }}"
+                                <form class="form"
+                                    action="{{ route('dashboard.organization-profiles.departments.update', $data->id) }}"
                                     method="POST" id="myForm" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
@@ -35,101 +36,67 @@
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <div class="form-group">
-                                                    <label for="title">Judul Carousel <span
+                                                    <label for="department_name">Nama Bidang <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text" id="title"
-                                                        class="form-control @error('title') is-invalid @enderror"
-                                                        placeholder="Contoh: Gedung DPUPR Kabupaten Lombok Tengah"
-                                                        name="title" value="{{ old('title', $data->title) }}">
-                                                    @error('title')
+                                                    <input type="text" id="department_name"
+                                                        class="form-control @error('department_name') is-invalid @enderror"
+                                                        placeholder="Contoh: Bidang Cipta Karya" name="department_name"
+                                                        value="{{ old('department_name', $data->department_name) }}">
+                                                    @error('department_name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
 
                                                 <div class="form-group">
-                                                    <label for="description">Deskripsi Singkat</label>
+                                                    <label for="description">Deskripsi Bidang</label>
                                                     <textarea rows="7" id="description" class="form-control @error('description') is-invalid @enderror"
-                                                        placeholder="Contoh: Dokumentasi gedung dan lingkungan DPUPR Kabupaten Lombok Tengah." name="description">{{ old('description', $data->description) }}</textarea>
+                                                        placeholder="Contoh: Bidang yang menangani urusan infrastruktur permukiman, bangunan gedung, dan penataan lingkungan."
+                                                        name="description">{{ old('description', $data->description) }}</textarea>
                                                     @error('description')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
-
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label for="sort_order">Urutan Carousel <span
-                                                                    class="text-danger">*</span></label>
-                                                            <input type="number" id="sort_order"
-                                                                class="form-control @error('sort_order') is-invalid @enderror"
-                                                                placeholder="Contoh: 1" name="sort_order"
-                                                                value="{{ old('sort_order', $data->sort_order) }}"
-                                                                min="0">
-                                                            @error('sort_order')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-md-6">
-                                                        <div class="form-group">
-                                                            <label>Status Carousel</label>
-                                                            <div class="d-flex align-items-center mt-1"
-                                                                style="gap: 0.5rem">
-                                                                <input type="checkbox"
-                                                                    class="custom-form-check-input @error('is_active') is-invalid @enderror"
-                                                                    id="is_active" name="is_active" value="1"
-                                                                    {{ old('is_active', $data->is_active) == 1 ? 'checked' : '' }}>
-                                                                <label for="is_active" class="mb-0">Aktif</label>
-                                                            </div>
-                                                            @error('is_active')
-                                                                <small class="text-danger">{{ $message }}</small>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </div>
-
                                             <div class="col-md-4">
                                                 <div class="mb-2">
-                                                    <img id="previewImage" src="{{ $currentImage }}"
+                                                    <img id="previewImage" src="{{ $currentLogo }}"
                                                         class="d-block mx-auto rounded shadow-sm"
                                                         style="height:260px; width:260px; object-fit: cover;">
                                                 </div>
 
                                                 <div class="form-group">
-                                                    <label for="image_path">Gambar Carousel</label>
+                                                    <label for="logo">Logo Bidang</label>
                                                     <div class="input-group">
                                                         <div class="custom-file">
-                                                            <input type="file" name="image_path" id="image_path"
-                                                                class="custom-file-input @error('image_path') is-invalid @enderror"
+                                                            <input type="file" name="logo" id="logo"
+                                                                class="custom-file-input @error('logo') is-invalid @enderror"
                                                                 accept=".jpg,.jpeg,.png">
-                                                            <label class="custom-file-label" for="image_path">
+                                                            <label class="custom-file-label" for="logo">
                                                                 Pilih Berkas
                                                             </label>
                                                         </div>
                                                         <div class="input-group-append">
                                                             <button
-                                                                class="btn btn-outline-danger {{ $data->image_path ? '' : 'd-none' }}"
-                                                                id="btnRemoveImage" type="button">
+                                                                class="btn btn-outline-danger {{ $data->logo ? '' : 'd-none' }}"
+                                                                id="btnRemoveLogo" type="button">
                                                                 <i class="fa fa-times"></i>
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    @error('image_path')
+                                                    @error('logo')
                                                         <small class="text-danger">{{ $message }}</small>
                                                     @enderror
-                                                    <small class="text-danger d-none" id="frontendImageError">
+                                                    <small class="text-danger d-none" id="frontendLogoError">
                                                     </small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <input type="hidden" name="remove_image" id="remove_image" value="0">
+                                    <input type="hidden" name="remove_logo" id="remove_logo" value="0">
 
                                     <div class="form-actions right">
-                                        <a href="{{ route('dashboard.hero-carousels.index') }}"
+                                        <a href="{{ route('dashboard.organization-profiles.departments.index') }}"
                                             class="btn btn-secondary mr-1">
                                             <i class="ft-x"></i> Batal
                                         </a>
@@ -172,38 +139,38 @@
             $(document).ready(function() {
 
                 // =========================
-                // VALIDASI & PREVIEW GAMBAR
+                // VALIDASI & PREVIEW LOGO
                 // =========================
                 const allowedExtensions = ['jpg', 'jpeg', 'png'];
-                const maxSizeKB = 2048;
+                const maxSizeKB = 1024;
 
-                const defaultImage = "{{ $defaultImage }}";
-                const currentImage = "{{ $currentImage }}";
-                const hasCurrentImage = "{{ $data->image_path ? '1' : '0' }}";
+                const defaultLogo = "{{ $defaultLogo }}";
+                const currentLogo = "{{ $currentLogo }}";
+                const hasCurrentLogo = "{{ $data->logo ? '1' : '0' }}";
 
-                const $inputImage = $('#image_path');
-                const $btnRemove = $('#btnRemoveImage');
+                const $inputLogo = $('#logo');
+                const $btnRemove = $('#btnRemoveLogo');
                 const $previewImage = $('#previewImage');
-                const $frontendError = $('#frontendImageError');
-                const $removeImage = $('#remove_image');
+                const $frontendError = $('#frontendLogoError');
+                const $removeLogo = $('#remove_logo');
 
                 function resetInput() {
-                    $inputImage.val("");
-                    $inputImage.removeClass('is-invalid');
-                    $inputImage.next().text("Pilih Berkas");
+                    $inputLogo.val("");
+                    $inputLogo.removeClass('is-invalid');
+                    $inputLogo.next().text("Pilih Berkas");
                     $frontendError.addClass('d-none').text('');
-                    $removeImage.val("0");
+                    $removeLogo.val("0");
 
-                    if (hasCurrentImage === "1") {
+                    if (hasCurrentLogo === "1") {
                         $btnRemove.removeClass('d-none');
-                        $previewImage.attr('src', currentImage);
+                        $previewImage.attr('src', currentLogo);
                     } else {
                         $btnRemove.addClass('d-none');
-                        $previewImage.attr('src', defaultImage);
+                        $previewImage.attr('src', defaultLogo);
                     }
                 }
 
-                $inputImage.on('change', function(e) {
+                $inputLogo.on('change', function(e) {
 
                     const file = this.files[0];
 
@@ -217,30 +184,30 @@
 
                     // Validasi ekstensi
                     if ($.inArray(fileExt, allowedExtensions) === -1) {
-                        $inputImage.addClass('is-invalid');
+                        $inputLogo.addClass('is-invalid');
                         $frontendError
                             .text('Format yang didukung JPG, JPEG, atau PNG.')
                             .removeClass('d-none');
-                        $inputImage.val("");
+                        $inputLogo.val("");
                         return;
                     }
 
                     // Validasi ukuran
                     if (fileSizeKB > maxSizeKB) {
-                        $inputImage.addClass('is-invalid');
+                        $inputLogo.addClass('is-invalid');
                         $frontendError
-                            .text('Ukuran gambar maksimal 2 MB.')
+                            .text('Ukuran logo maksimal 1 MB.')
                             .removeClass('d-none');
-                        $inputImage.val("");
+                        $inputLogo.val("");
                         return;
                     }
 
                     // Jika valid
-                    $inputImage.next().text(file.name);
+                    $inputLogo.next().text(file.name);
                     $btnRemove.removeClass('d-none');
-                    $inputImage.removeClass('is-invalid');
+                    $inputLogo.removeClass('is-invalid');
                     $frontendError.addClass('d-none');
-                    $removeImage.val("0");
+                    $removeLogo.val("0");
 
                     const reader = new FileReader();
                     reader.onload = function(event) {
@@ -250,13 +217,13 @@
                 });
 
                 $btnRemove.on('click', function() {
-                    $inputImage.val("");
-                    $inputImage.removeClass('is-invalid');
-                    $inputImage.next().text("Pilih Berkas");
+                    $inputLogo.val("");
+                    $inputLogo.removeClass('is-invalid');
+                    $inputLogo.next().text("Pilih Berkas");
                     $frontendError.addClass('d-none').text('');
                     $btnRemove.addClass('d-none');
-                    $previewImage.attr('src', defaultImage);
-                    $removeImage.val("1");
+                    $previewImage.attr('src', defaultLogo);
+                    $removeLogo.val("1");
                 });
             });
         </script>

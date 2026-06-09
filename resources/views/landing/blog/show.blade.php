@@ -1,11 +1,29 @@
 <x-guest-layout>
     @php
-        $pageTitle = $article->meta_title ?: $article->title;
         $defaultThumbnail = asset('public/assets/images/placeholder.svg');
         $currentThumbnail = $article->thumbnail ? asset('public/' . $article->thumbnail) : $defaultThumbnail;
+
+        $plainMetaSource = trim(preg_replace('/\s+/', ' ', strip_tags($article->excerpt ?: $article->content)));
+
+        $pageTitle = $article->meta_title ?: $article->title;
+        $metaDescription = $article->meta_description ?: \Illuminate\Support\Str::limit($plainMetaSource, 160, '');
+
+        $metaKeywords = $article->meta_keywords ?: '';
+        $canonicalUrl = route('blog.show', $article->slug);
+
+        $metaPublishedTime = $article->published_at ? $article->published_at->toIso8601String() : '';
+
+        $metaModifiedTime = $article->updated_at ? $article->updated_at->toIso8601String() : '';
     @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
+    <x-slot name="metaDescription">{{ $metaDescription }}</x-slot>
+    <x-slot name="metaKeywords">{{ $metaKeywords }}</x-slot>
+    <x-slot name="metaImage">{{ $currentThumbnail }}</x-slot>
+    <x-slot name="canonicalUrl">{{ $canonicalUrl }}</x-slot>
+    <x-slot name="metaType">article</x-slot>
+    <x-slot name="metaPublishedTime">{{ $metaPublishedTime }}</x-slot>
+    <x-slot name="metaModifiedTime">{{ $metaModifiedTime }}</x-slot>
 
     <section id="page-section">
         <div class="row g-5">
