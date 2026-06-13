@@ -29,6 +29,7 @@ return [
     'article' => 'Artikel',
     'articles' => 'Artikel',
     'hero-carousels' => 'Carousel',
+    'public-information-portals' => 'Portal Informasi Publik',
 
     'users' => 'Kelola Pengguna',
 

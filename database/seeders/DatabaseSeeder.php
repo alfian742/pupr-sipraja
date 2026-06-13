@@ -61,6 +61,7 @@ class DatabaseSeeder extends Seeder
             // FinanceSeeder::class,
             BlogSeeder::class,
             // HeroCarouselSeeder::class,
+            PublicInformationPortalSeeder::class,
         ]);
     }
 }

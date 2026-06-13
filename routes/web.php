@@ -15,6 +15,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrganizationProfileController;
 use App\Http\Controllers\PersonnelProfileController;
+use App\Http\Controllers\PublicInformationPortalController;
 use App\Http\Controllers\RealizationController;
 use App\Http\Controllers\RegionalPerformanceIndicatorController;
 use Illuminate\Support\Facades\Route;
@@ -175,6 +176,17 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
         });
 
         Route::middleware(['role:superadmin'])->group(function () {
+            // Portal Informasi Publik hanya bisa diakses oleh superadmin
+            Route::prefix('public-information-portals')->name('public-information-portals.')->group(function () {
+                Route::get('/', [PublicInformationPortalController::class, 'index'])->name('index');
+                Route::get('/data', [PublicInformationPortalController::class, 'getData'])->name('data');
+                Route::post('/mass-destroy', [PublicInformationPortalController::class, 'massDestroy'])->name('mass-destroy');
+                Route::get('/create', [PublicInformationPortalController::class, 'create'])->name('create');
+                Route::post('/', [PublicInformationPortalController::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [PublicInformationPortalController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [PublicInformationPortalController::class, 'update'])->name('update');
+            });
+
             // Kontak hanya bisa diakses oleh superadmin
             Route::prefix('contact')->name('contact.')->group(function () {
                 Route::get('/', [ContactController::class, 'index'])->name('index');

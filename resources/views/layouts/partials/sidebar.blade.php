@@ -155,7 +155,14 @@
                 </a>
             </li>
 
-            @if (Auth::user()->role === 'superadmin' || Auth::user()->role === 'admin')
+            @if (Auth::user()->role === 'superadmin')
+                <li class="nav-item @if (request()->routeIs('dashboard.other-informations.public-information-portals.*')) active @endif">
+                    <a href="{{ route('dashboard.other-informations.public-information-portals.index') }}">
+                        <i class="icon-globe"></i>
+                        <span class="menu-title">Portal <br> Informasi Publik</span>
+                    </a>
+                </li>
+
                 <li class="navigation-header">
                     <span>Pengaturan</span>
                     <i class="ft-more-horizontal ft-minus" data-toggle="tooltip" data-placement="right"
@@ -175,14 +182,15 @@
                         <span class="menu-title">Kontak dan <br> Pengaduan</span>
                     </a>
                 </li>
+            @endif
 
+            <li class="navigation-header">
+                <span>Pengguna</span>
+                <i class="ft-more-horizontal ft-minus" data-toggle="tooltip" data-placement="right"
+                    data-original-title="Pengguna"></i>
+            </li>
 
-                <li class="navigation-header">
-                    <span>Pengguna</span>
-                    <i class="ft-more-horizontal ft-minus" data-toggle="tooltip" data-placement="right"
-                        data-original-title="Pengguna"></i>
-                </li>
-
+            @if (Auth::user()->role === 'superadmin' || Auth::user()->role === 'admin')
                 <li class="nav-item @if (request()->routeIs('dashboard.users.*')) active @endif">
                     <a href="{{ route('dashboard.users.index') }}">
                         <i class="icon-user"></i>

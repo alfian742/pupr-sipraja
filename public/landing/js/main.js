@@ -45,9 +45,9 @@
         });
     }
 
-    // Public service carousel
-    if ($(".public-service-carousel").length) {
-        $(".public-service-carousel").owlCarousel({
+    // Article carousel
+    if ($(".article-carousel").length) {
+        $(".article-carousel").owlCarousel({
             autoplay: true,
             smartSpeed: 1000,
             margin: 45,

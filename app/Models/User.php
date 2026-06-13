@@ -176,4 +176,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(BlogCategory::class, 'updated_by');
     }
+
+    // Relasi ke public_information_portals yang dimodifikasi oleh user ini
+    public function modifiedPublicInformationPortals()
+    {
+        return $this->hasMany(PublicInformationPortal::class, 'modified_by');
+    }
 }

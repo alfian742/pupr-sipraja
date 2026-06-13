@@ -123,7 +123,7 @@
                     <div class="about-modern-content">
                         <div class="about-modern-heading">
                             <span class="about-modern-heading-line"></span>
-                            <h1 class="display-4 mb-0">Tentang Kami</h1>
+                            <h2 class="display-5 mb-0">Tentang Kami</h2>
                         </div>
 
                         <div class="about-modern-description">
@@ -141,7 +141,7 @@
         <div class="container px-4">
             <div class="department-header text-center mx-auto mb-5">
                 <span class="department-subtitle">Unit Kerja</span>
-                <h2 class="department-title mb-3"> {{ config('app.subname', 'Laravel') }}</h2>
+                <h2 class="display-6 mb-3">{{ config('app.subname', 'Laravel') }}</h2>
                 <span class="department-title-line"></span>
             </div>
 
@@ -198,7 +198,7 @@
     <section class="vision-mission-section" id="vision-mission-section">
         <div class="container px-4">
             <div class="vision-mission-header text-center mx-auto">
-                <h2 class="display-4 vision-mission-title mb-3">Visi dan Misi</h2>
+                <h2 class="display-5 vision-mission-title mb-3">Visi dan Misi</h2>
                 <span class="vision-mission-title-line"></span>
 
                 <div class="vision-mission-summary mt-4">
@@ -259,9 +259,10 @@
     <section class="container px-4 py-5" id="blog-section">
         <div class="row justify-content-center mb-5">
             <div class="col-md-7 text-center">
-                <h2 class="display-4 mb-4">Artikel Terbaru</h2>
+                <h2 class="display-5 mb-3">Artikel Terbaru</h2>
+                <span class="article-title-line"></span>
 
-                <p class="text-dark">
+                <p class="text-dark mt-4">
                     Temukan informasi, publikasi, dan artikel terbaru dari
                     {{ config('app.subname', 'Laravel') }} sebagai media informasi
                     dan edukasi bagi masyarakat.
@@ -270,7 +271,7 @@
         </div>
 
         @if (isset($latestArticles) && $latestArticles->count())
-            <div class="owl-carousel public-service-carousel position-relative" style="padding: 0 45px 45px 45px;">
+            <div class="owl-carousel article-carousel position-relative" style="padding: 0 45px 45px 45px;">
                 @foreach ($latestArticles as $item)
                     <div class="rounded-2 h-100 overflow-hidden bg-white shadow-sm">
                         <div class="position-relative">
@@ -351,7 +352,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="faq-header text-center mx-auto mb-5">
-                        <h2 class="display-4 faq-title mb-3">FAQ</h2>
+                        <h2 class="display-5 faq-title mb-3">FAQ</h2>
                         <span class="faq-title-line"></span>
 
                         <p class="faq-description mt-4 mb-0">
@@ -364,67 +365,146 @@
 
             <div class="row justify-content-center">
                 <div class="col-lg-9">
-                    @forelse ($faqs as $faq)
-                        @if ($loop->first)
-                            <div class="faq-accordion-wrapper">
-                                <div class="accordion faq-accordion" id="faqAccordion">
-                        @endif
+                    @if ($faqs->count() > 0)
+                        <div class="faq-accordion-wrapper">
+                            <div class="accordion faq-accordion" id="faqAccordion">
+                                @foreach ($faqs as $faq)
+                                    @php
+                                        $faqNumber = str_pad($loop->iteration, 2, '0', STR_PAD_LEFT);
+                                        $headingId = 'faqHeading' . $loop->iteration;
+                                        $collapseId = 'faqCollapse' . $loop->iteration;
+                                    @endphp
 
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header" id="faqHeading{{ $loop->iteration }}">
-                                <button class="accordion-button faq-button collapsed" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#faq{{ $loop->iteration }}"
-                                    aria-expanded="false" aria-controls="faq{{ $loop->iteration }}">
-                                    <span class="faq-number">
-                                        {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
-                                    </span>
+                                    <div class="accordion-item faq-item">
+                                        <h2 class="accordion-header" id="{{ $headingId }}">
+                                            <button class="accordion-button faq-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#{{ $collapseId }}"
+                                                aria-expanded="false" aria-controls="{{ $collapseId }}">
+                                                <span class="faq-number">
+                                                    {{ $faqNumber }}
+                                                </span>
 
-                                    <span class="faq-question">
-                                        {{ $faq->faq_question }}
-                                    </span>
-                                </button>
-                            </h2>
+                                                <span class="faq-question">
+                                                    {{ $faq->faq_question }}
+                                                </span>
+                                            </button>
+                                        </h2>
 
-                            <div id="faq{{ $loop->iteration }}" class="accordion-collapse collapse"
-                                aria-labelledby="faqHeading{{ $loop->iteration }}" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body faq-answer pt-2">
-                                    {!! $faq->faq_answer !!}
-                                </div>
+                                        <div id="{{ $collapseId }}" class="accordion-collapse collapse"
+                                            aria-labelledby="{{ $headingId }}" data-bs-parent="#faqAccordion">
+                                            <div class="accordion-body faq-answer pt-2">
+                                                {!! $faq->faq_answer !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
+                    @else
+                        <div class="faq-empty text-center">
+                            <div class="faq-empty-icon mx-auto mb-4">
+                                <i class="fa fa-question text-white"></i>
+                            </div>
 
-                        @if ($loop->last)
+                            <h4 class="text-muted fw-bold mb-0">FAQ Belum Tersedia</h4>
+                        </div>
+                    @endif
                 </div>
             </div>
-            @endif
-        @empty
-            <div class="faq-empty text-center">
-                <div class="faq-empty-icon mx-auto mb-4">
-                    <i class="fa fa-question text-white"></i>
-                </div>
 
-                <h4 class="text-muted fw-bold mb-0">FAQ Belum Tersedia</h4>
-            </div>
-            @endforelse
-        </div>
-        </div>
-
-        @if ($faqs->count() > 0)
-            <div class="row justify-content-center mt-5">
-                <div class="col-lg-7">
-                    <div class="d-flex justify-content-center">
-                        <a href="{{ route('other-informations.faqs') }}"
-                            class="btn btn-lg btn-secondary rounded-pill">
-                            Lihat Semua FAQ
-                            <i class="fa fa-arrow-right ms-2"></i>
-                        </a>
+            @if ($faqs->count() > 0)
+                <div class="row justify-content-center mt-5">
+                    <div class="col-lg-7">
+                        <div class="d-flex justify-content-center">
+                            <a href="{{ route('other-informations.faqs') }}"
+                                class="btn btn-lg btn-secondary rounded-pill">
+                                Lihat Semua FAQ
+                                <i class="fa fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endif
+            @endif
         </div>
     </section>
     <!-- FAQ End -->
+
+    <!-- Public Informartion Portal Start -->
+    <section class="portal-logo-loop-section py-5" id="public-information-portal-section">
+        <div class="container px-4 mb-4">
+            <div class="portal-logo-loop-header text-center mx-auto mb-5">
+                <h3 class="mb-1">Portal Informasi Publik</h3>
+                <h2 class="display-5 mb-3">Kabupaten Lombok Tengah</h2>
+                <span class="portal-logo-loop-title-line"></span>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    @php
+                        $portalItems = $publicInformationPortals;
+                    @endphp
+
+                    @if ($portalItems->isNotEmpty())
+                        <div class="portal-logo-loop-wrapper">
+                            <div class="portal-logo-loop-viewport">
+                                <div class="portal-logo-loop-track">
+                                    @foreach (range(1, 2) as $loopGroup)
+                                        @foreach ($portalItems as $item)
+                                            @php
+                                                $logoPath = $item->logo
+                                                    ? asset('public/' . $item->logo)
+                                                    : asset('public/assets/images/logo-loteng-square.png');
+
+                                                $hasWebsite = !empty($item->website_url);
+                                                $isDuplicate = $loopGroup === 2;
+                                            @endphp
+
+                                            <div class="portal-logo-loop-item"
+                                                @if ($isDuplicate) aria-hidden="true" @endif>
+                                                @if ($hasWebsite && !$isDuplicate)
+                                                    <a href="{{ $item->website_url }}" target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="portal-logo-loop-card portal-logo-loop-card-link"
+                                                        aria-label="Kunjungi website {{ $item->portal_name }}">
+                                                        <div class="portal-logo-loop-image-box">
+                                                            <img src="{{ $logoPath }}"
+                                                                class="portal-logo-loop-image" loading="lazy"
+                                                                alt="{{ $item->portal_name }}">
+                                                        </div>
+
+                                                        <h5 class="portal-logo-loop-name">
+                                                            {{ $item->portal_name }}
+                                                        </h5>
+                                                    </a>
+                                                @else
+                                                    <div class="portal-logo-loop-card">
+                                                        <div class="portal-logo-loop-image-box">
+                                                            <img src="{{ $logoPath }}"
+                                                                class="portal-logo-loop-image" loading="lazy"
+                                                                alt="{{ $isDuplicate ? '' : $item->portal_name }}">
+                                                        </div>
+
+                                                        <h5 class="portal-logo-loop-name">
+                                                            {{ $item->portal_name }}
+                                                        </h5>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="portal-logo-loop-empty text-center">
+                            <h4 class="text-muted fw-bold mb-0">Portal Informasi Publik Belum Tersedia</h4>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Public Informartion Portal End -->
 
     @push('styles')
         <!-- Libraries Stylesheet -->

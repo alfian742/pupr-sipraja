@@ -11,6 +11,7 @@ use App\Models\FAQ;
 use App\Models\HeroCarousel;
 use App\Models\OrganizationProfile;
 use App\Models\PersonnelProfile;
+use App\Models\PublicInformationPortal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,9 +22,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $departments = Department::all();
+        $departments = Department::take(5)->get();
         $organizationProfile = OrganizationProfile::first();
         $faqs = FAQ::take(5)->get();
+        $publicInformationPortals = PublicInformationPortal::all();
 
         $heroCarousels = HeroCarousel::query()
             ->active()
@@ -40,6 +42,7 @@ class HomeController extends Controller
             'departments',
             'organizationProfile',
             'faqs',
+            'publicInformationPortals',
             'heroCarousels',
             'latestArticles'
         ));
