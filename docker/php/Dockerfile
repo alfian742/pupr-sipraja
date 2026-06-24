@@ -5,10 +5,6 @@ WORKDIR /var/www/html
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     TZ=Asia/Makassar
 
-# Catatan:
-# - Project SI PRAJA memakai Laravel 11 + Maatwebsite Excel + Yajra DataTables.
-# - Redis tidak dipasang karena .env project memakai database queue/cache/session.
-# - Ext XML bawaan PHP official image umumnya sudah aktif; yang wajib ditambah: pdo_mysql, gd, intl, zip, bcmath, pcntl.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     ca-certificates \
