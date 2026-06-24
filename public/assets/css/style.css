@@ -1,0 +1,164 @@
+/*================================================================================
+	Item Name: Robust - Responsive Admin Template
+	Version: 2.0
+	Author: PIXINVENT
+	Author URL: http://www.themeforest.net/user/pixinvent
+================================================================================
+
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+
+.content-wrapper,
+.content-body {
+	min-height: 100vh !important;
+	height: auto !important;
+}
+
+.content-body .card {
+	overflow: hidden !important;
+	border-radius: 10px !important;
+}
+
+@media (min-width: 768px) {
+	.navbar-container.content {
+		padding-left: 0.25rem !important;
+	}
+}
+
+.main-menu>.main-menu-content>.navigation-main a {
+	display: flex !important;
+	align-items: center !important;
+}
+
+.table {
+	width: 100% !important;
+}
+
+.table-custom {
+	white-space: nowrap;
+}
+
+.table-align-middle td,
+.table-align-middle th {
+	vertical-align: middle;
+}
+
+.table-col-scroll-container {
+	min-width: 20rem;
+	max-width: 30rem;
+	min-height: 1rem;
+	max-height: 5rem;
+	overflow: auto;
+	box-sizing: border-box;
+	word-wrap: break-word;
+}
+
+.dataTables_processing {
+	padding: 10px 15px !important;
+	color: #fff !important;
+	width: auto !important;
+	background-color: #333 !important;
+	border-radius: 4px !important;
+}
+
+.page-item.active .page-link {
+	background-color: #3f51b5 !important;
+	border-color: #3f51b5 !important;
+	color: #fff !important;
+}
+
+.page-link:hover {
+	color: #3f51b5 !important;
+}
+
+.text-wrap {
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	max-width: 300px !important;
+}
+
+.text-wrap-scroll {
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	min-width: 200px !important;
+	max-width: 300px !important;
+	max-height: 200px !important;
+	overflow-y: auto !important;
+}
+
+.dropdown-user-link::after {
+	display: none;
+}
+
+.dropdown-user-link .avatar {
+	margin-left: 0.5rem !important;
+}
+
+.custom-form-check-input {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 18px;
+	height: 18px;
+	border: 1px solid #3f51b5;
+	border-radius: 4px;
+	cursor: pointer;
+	position: relative;
+	transition: all 0.2s ease-in-out;
+	background-color: #fff;
+}
+
+.custom-form-check-input:hover {
+	border-color: #0a58ca;
+	box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.custom-form-check-input:checked {
+	background-color: #3f51b5;
+	border-color: #3f51b5;
+}
+
+.custom-form-check-input:checked::after {
+	content: "✔";
+	color: white;
+	font-size: 12px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.custom-form-check-input:disabled {
+	background-color: #e9ecef;
+	border-color: #ced4da;
+	cursor: not-allowed;
+	opacity: 0.7;
+}
+
+#scrollToTopPage {
+	position: fixed;
+	right: 2.25rem;
+	bottom: 4.25rem;
+	z-index: 9999;
+
+	opacity: 0;
+	transform: translateY(12px);
+	pointer-events: none;
+	transition: opacity .2s ease, transform .2s ease;
+}
+
+#scrollToTopPage.is-show {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+	#scrollToTopPage {
+		right: 1rem;
+		bottom: 1rem;
+	}
+}
