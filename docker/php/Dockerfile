@@ -39,5 +39,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/99-sipraja.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/99-opcache.ini
+COPY docker/php/entrypoint.sh /usr/local/bin/sipraja-entrypoint
 
+RUN chmod +x /usr/local/bin/sipraja-entrypoint
+
+ENTRYPOINT ["sipraja-entrypoint"]
 CMD ["php-fpm"]
