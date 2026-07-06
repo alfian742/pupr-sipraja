@@ -25,7 +25,7 @@ services:
       # diarahkan 301 ke http://103.168.246.50. Karena browser akhirnya
       # membuka IP publik, Nginx Docker harus mendengarkan langsung pada
       # port HTTP publik server.
-      - "0.0.0.0:80:80"
+      - "127.0.0.1:8080:80"
     volumes:
       - ./:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
