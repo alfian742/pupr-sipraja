@@ -54,18 +54,6 @@ return [
             'report' => false,
         ],
 
-        // Disk khusus untuk file yang ingin langsung berada di public/uploads
-        // tanpa melalui storage/app/public. Contoh penggunaan:
-        // Storage::disk('uploads')->putFileAs('images', $file, $filename);
-        'uploads' => [
-            'driver' => 'local',
-            'root' => public_path('uploads'),
-            'url' => env('APP_URL') . '/uploads',
-            'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
-        ],
-
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
