@@ -113,7 +113,7 @@
                                             <div class="col-md-4">
                                                 <div class="mb-2">
                                                     <img id="previewImage"
-                                                        src="{{ $data->personnel_photo ? asset($data->personnel_photo) : asset('assets/images/avatar.png') }}"
+                                                        src="{{ $data->personnel_photo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->personnel_photo))) : asset('assets/images/avatar.png') }}"
                                                         class="d-block mx-auto rounded shadow-sm"
                                                         style="height:260px; aspect-ratio:3/4; object-fit: cover;">
                                                 </div>
@@ -290,7 +290,7 @@
                     $frontendError.addClass('d-none').text('');
                     $btnRemove.addClass('d-none');
                     $previewImage.attr('src',
-                        "{{ $data->personnel_photo ? asset('' . $data->personnel_photo) : asset('assets/images/avatar.png') }}"
+                        "{{ $data->personnel_photo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->personnel_photo))) : asset('assets/images/avatar.png') }}"
                     );
                 }
 

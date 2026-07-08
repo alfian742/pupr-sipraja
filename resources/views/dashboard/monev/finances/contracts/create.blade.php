@@ -139,6 +139,9 @@
                                                         <option value="SEK"
                                                             {{ old('department') == 'SEK' ? 'selected' : '' }}>SEK
                                                         </option>
+                                                        <option value="TATA RUANG"
+                                                            {{ old('department') == 'TATA RUANG' ? 'selected' : '' }}>
+                                                            TATA RUANG</option>
                                                     </select>
 
                                                     @error('department')

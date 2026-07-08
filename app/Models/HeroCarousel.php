@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class HeroCarousel extends Model
 {
@@ -45,6 +46,8 @@ class HeroCarousel extends Model
 
     public function getImageUrlAttribute(): string
     {
-        return asset($this->image_path);
+        $imagePath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $this->image_path));
+
+        return asset('storage/' . $imagePath);
     }
 }

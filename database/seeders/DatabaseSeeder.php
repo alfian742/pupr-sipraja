@@ -62,6 +62,9 @@ class DatabaseSeeder extends Seeder
             BlogSeeder::class,
             // HeroCarouselSeeder::class,
             PublicInformationPortalSeeder::class,
+            DistrictSeeder::class,
+            VillageSeeder::class,
+
         ]);
     }
 }

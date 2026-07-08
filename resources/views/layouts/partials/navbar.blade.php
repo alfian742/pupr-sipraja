@@ -10,10 +10,12 @@
                     <a class="navbar-brand" href="{{ route('dashboard.index') }}">
                         <div class="d-flex align-items-center" style="gap: 0.5rem">
                             <x-application-logo height="36" />
-                            <h1 class="mb-0"
-                                style="color: #06366d; font-family: Arial, sans-serif; font-weight: 800;">
-                                <span style="color: #f3b80c;">SI</span> PRAJA
-                            </h1>
+                            @if (!request()->routeIs('ikli-survey.*'))
+                                <h1 class="mb-0"
+                                    style="color: #06366d; font-family: Arial, sans-serif; font-weight: 800;">
+                                    <span style="color: #f3b80c;">SI</span> PRAJA
+                                </h1>
+                            @endif
                         </div>
                     </a>
                 </li>
@@ -45,14 +47,29 @@
                             </span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="{{ route('home') }}"><i class="fa fa-home"
-                                    style="width: 1rem"></i>
-                                Beranda
-                            </a>
-                            <a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fa fa-user"
-                                    style="width: 1rem"></i>
-                                Edit Profil
-                            </a>
+                            @if (request()->routeIs('ikli-survey.*'))
+                                <a class="dropdown-item" href="{{ route('ikli-survey.home') }}"><i
+                                        class="fa fa-pencil-square" style="width: 1rem"></i>
+                                    Isi Kuesioner
+                                </a>
+                                <a class="dropdown-item" href="{{ route('dashboard.index') }}">
+                                    <i class="fa fa-tachometer" style="width: 1rem"></i>
+                                    Dashboard SI PRAJA
+                                </a>
+                            @else
+                                <a class="dropdown-item" href="{{ route('home') }}"><i class="fa fa-home"
+                                        style="width: 1rem"></i>
+                                    Beranda
+                                </a>
+                                <a class="dropdown-item" href="{{ route('ikli-survey.dashboard.index') }}">
+                                    <i class="fa fa-line-chart" style="width: 1rem"></i>
+                                    Dashboard Survei IKLI
+                                </a>
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fa fa-user"
+                                        style="width: 1rem"></i>
+                                    Edit Profil
+                                </a>
+                            @endif
                             <div class="dropdown-divider"></div>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
                                 @csrf

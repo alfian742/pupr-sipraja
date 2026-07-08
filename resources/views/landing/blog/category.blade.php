@@ -55,7 +55,7 @@
                 <div class="col-md-6 col-lg-4">
                     <article class="card h-100 zoom-hover overflow-hidden rounded border-0 shadow-sm">
                         <a href="{{ route('blog.show', $item->slug) }}" class="text-decoration-none">
-                            <img src="{{ $item->thumbnail ? asset('public/' . $item->thumbnail) : asset('public/assets/images/placeholder.svg') }}"
+                            <img src="{{ $item->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->thumbnail))) : asset('assets/images/placeholder.svg') }}"
                                 class="card-img-top" style="aspect-ratio: 4/3; object-fit: cover;"
                                 alt="{{ $item->title ?? 'Artikel' }}">
                         </a>

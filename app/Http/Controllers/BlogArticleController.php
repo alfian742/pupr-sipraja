@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -45,8 +45,12 @@ class BlogArticleController extends Controller
                 ->addColumn('thumbnail', function ($data) {
                     $defaultThumbnail = 'assets/images/placeholder.svg';
 
-                    $thumbnailPath = (!empty($data->thumbnail) && File::exists(public_path($data->thumbnail)))
-                        ? $data->thumbnail
+                    $thumbnailDiskPath = !empty($data->thumbnail)
+                        ? Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $data->thumbnail))
+                        : null;
+
+                    $thumbnailPath = ($thumbnailDiskPath && Storage::disk('public')->exists($thumbnailDiskPath))
+                        ? 'storage/' . $thumbnailDiskPath
                         : $defaultThumbnail;
 
                     return '<img src="' . asset($thumbnailPath) . '"
@@ -161,15 +165,11 @@ class BlogArticleController extends Controller
 
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $destinationPath = public_path('uploads/images/blog/articles');
+                $destinationPath = 'images/blog/articles';
 
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
+                Storage::disk('public')->putFileAs($destinationPath, $file, $filename);
 
-                $file->move($destinationPath, $filename);
-
-                $thumbnailPath = 'uploads/images/blog/articles/' . $filename;
+                $thumbnailPath = 'images/blog/articles/' . $filename;
             }
 
             BlogArticle::create([
@@ -234,32 +234,36 @@ class BlogArticleController extends Controller
 
         try {
             $thumbnailPath = $data->thumbnail;
-            $destinationPath = public_path('uploads/images/blog/articles');
-
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
+            $destinationPath = 'images/blog/articles';
 
             if ($request->filled('remove_thumbnail') && $request->remove_thumbnail == 1) {
-                if ($thumbnailPath && File::exists(public_path($thumbnailPath))) {
-                    File::delete(public_path($thumbnailPath));
+                if ($thumbnailPath) {
+                    $thumbnailDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $thumbnailPath));
+
+                    if (Storage::disk('public')->exists($thumbnailDiskPath)) {
+                        Storage::disk('public')->delete($thumbnailDiskPath);
+                    }
                 }
 
                 $thumbnailPath = null;
             }
 
             if ($request->hasFile('thumbnail')) {
-                if ($thumbnailPath && File::exists(public_path($thumbnailPath))) {
-                    File::delete(public_path($thumbnailPath));
+                if ($thumbnailPath) {
+                    $thumbnailDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $thumbnailPath));
+
+                    if (Storage::disk('public')->exists($thumbnailDiskPath)) {
+                        Storage::disk('public')->delete($thumbnailDiskPath);
+                    }
                 }
 
                 $file = $request->file('thumbnail');
 
                 $newFilename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $file->move($destinationPath, $newFilename);
+                Storage::disk('public')->putFileAs($destinationPath, $file, $newFilename);
 
-                $thumbnailPath = 'uploads/images/blog/articles/' . $newFilename;
+                $thumbnailPath = 'images/blog/articles/' . $newFilename;
             }
 
             $data->update([
@@ -314,8 +318,12 @@ class BlogArticleController extends Controller
             foreach ($articles as $data) {
                 $thumbnailPath = $data->thumbnail;
 
-                if ($thumbnailPath && File::exists(public_path($thumbnailPath))) {
-                    File::delete(public_path($thumbnailPath));
+                if ($thumbnailPath) {
+                    $thumbnailDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $thumbnailPath));
+
+                    if (Storage::disk('public')->exists($thumbnailDiskPath)) {
+                        Storage::disk('public')->delete($thumbnailDiskPath);
+                    }
                 }
             }
 

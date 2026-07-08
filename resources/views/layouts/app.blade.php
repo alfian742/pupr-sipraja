@@ -54,7 +54,7 @@
     <!-- ////////////////////////////////////////////////////////////////////////////-->
     <div class="app-content content">
         <div class="content-wrapper my-2">
-            @if (!request()->routeIs('dashboard.index'))
+            @if (!request()->routeIs('dashboard.index') && !request()->routeIs('ikli-survey.*'))
                 {{-- Breadcrumb --}}
                 @include('layouts.partials.breadcrumb')
             @endif

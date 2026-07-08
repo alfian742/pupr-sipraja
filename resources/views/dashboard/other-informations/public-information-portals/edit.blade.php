@@ -2,7 +2,7 @@
     @php
         $pageTitle = 'Edit Portal Informasi Publik';
         $defaultLogo = asset('assets/images/logo-loteng-square.png');
-        $currentLogo = $data->logo ? asset($data->logo) : $defaultLogo;
+        $currentLogo = $data->logo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->logo))) : $defaultLogo;
     @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>

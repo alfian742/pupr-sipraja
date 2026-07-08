@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -32,8 +32,12 @@ class HeroCarouselController extends Controller
                 ->addColumn('image', function ($data) {
                     $defaultImage = 'assets/images/placeholder.svg';
 
-                    $imagePath = (!empty($data->image_path) && File::exists(public_path($data->image_path)))
-                        ? $data->image_path
+                    $imageDiskPath = !empty($data->image_path)
+                        ? Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $data->image_path))
+                        : null;
+
+                    $imagePath = ($imageDiskPath && Storage::disk('public')->exists($imageDiskPath))
+                        ? 'storage/' . $imageDiskPath
                         : $defaultImage;
 
                     return '<img src="' . asset($imagePath) . '"
@@ -118,15 +122,11 @@ class HeroCarouselController extends Controller
 
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $destinationPath = public_path('uploads/images/hero-carousels');
+                $destinationPath = 'images/hero-carousels';
 
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
+                Storage::disk('public')->putFileAs($destinationPath, $file, $filename);
 
-                $file->move($destinationPath, $filename);
-
-                $imagePath = 'uploads/images/hero-carousels/' . $filename;
+                $imagePath = 'images/hero-carousels/' . $filename;
             }
 
             HeroCarousel::create([
@@ -173,32 +173,36 @@ class HeroCarouselController extends Controller
 
         try {
             $imagePath = $data->image_path;
-            $destinationPath = public_path('uploads/images/hero-carousels');
-
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
+            $destinationPath = 'images/hero-carousels';
 
             if ($request->filled('remove_image') && $request->remove_image == 1) {
-                if ($imagePath && File::exists(public_path($imagePath))) {
-                    File::delete(public_path($imagePath));
+                if ($imagePath) {
+                    $imageDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $imagePath));
+
+                    if (Storage::disk('public')->exists($imageDiskPath)) {
+                        Storage::disk('public')->delete($imageDiskPath);
+                    }
                 }
 
                 $imagePath = null;
             }
 
             if ($request->hasFile('image_path')) {
-                if ($imagePath && File::exists(public_path($imagePath))) {
-                    File::delete(public_path($imagePath));
+                if ($imagePath) {
+                    $imageDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $imagePath));
+
+                    if (Storage::disk('public')->exists($imageDiskPath)) {
+                        Storage::disk('public')->delete($imageDiskPath);
+                    }
                 }
 
                 $file = $request->file('image_path');
 
                 $newFilename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $file->move($destinationPath, $newFilename);
+                Storage::disk('public')->putFileAs($destinationPath, $file, $newFilename);
 
-                $imagePath = 'uploads/images/hero-carousels/' . $newFilename;
+                $imagePath = 'images/hero-carousels/' . $newFilename;
             }
 
             $data->update([
@@ -245,8 +249,12 @@ class HeroCarouselController extends Controller
             foreach ($heroCarousels as $data) {
                 $imagePath = $data->image_path;
 
-                if ($imagePath && File::exists(public_path($imagePath))) {
-                    File::delete(public_path($imagePath));
+                if ($imagePath) {
+                    $imageDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $imagePath));
+
+                    if (Storage::disk('public')->exists($imageDiskPath)) {
+                        Storage::disk('public')->delete($imageDiskPath);
+                    }
                 }
             }
 

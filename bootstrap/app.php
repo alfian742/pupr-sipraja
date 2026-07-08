@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => \App\Http\Middleware\CheckUserActive::class,
             'role' => \App\Http\Middleware\CheckUserRole::class,
             'visitor' => \App\Http\Middleware\VisitorTracker::class,
+            'questionnaire.active' => \App\Http\Middleware\EnsureQuestionnaireIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

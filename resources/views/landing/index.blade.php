@@ -62,7 +62,7 @@
                                 @forelse ($carousels as $index => $carousel)
                                     @php
                                         $image = $carousel->image_path
-                                            ? asset($carousel->image_path)
+                                            ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $carousel->image_path)))
                                             : asset('assets/images/placeholder.svg');
 
                                         $altText = trim(
@@ -152,7 +152,7 @@
                             <div class="department-card-inner">
                                 <div class="department-icon-wrapper">
                                     @if (!empty($item->logo))
-                                        <img src="{{ asset($item->logo) }}" class="department-logo"
+                                        <img src="{{ asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo))) }}" class="department-logo"
                                             alt="{{ $item->department_name }}" loadig="lazy">
                                     @else
                                         @php
@@ -275,7 +275,7 @@
                 @foreach ($latestArticles as $item)
                     <div class="rounded-2 h-100 overflow-hidden bg-white shadow-sm">
                         <div class="position-relative">
-                            <img src="{{ $item->thumbnail ? asset($item->thumbnail) : asset('assets/images/placeholder.svg') }}"
+                            <img src="{{ $item->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->thumbnail))) : asset('assets/images/placeholder.svg') }}"
                                 class="w-100" style="aspect-ratio: 4/3; object-fit: cover;"
                                 alt="{{ $item->title ?? 'Artikel' }}">
                         </div>
@@ -452,7 +452,7 @@
                                         @foreach ($portalItems as $item)
                                             @php
                                                 $logoPath = $item->logo
-                                                    ? asset($item->logo)
+                                                    ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo)))
                                                     : asset('assets/images/logo-loteng-square.png');
 
                                                 $hasWebsite = !empty($item->website_url);

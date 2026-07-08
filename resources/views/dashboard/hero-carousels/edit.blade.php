@@ -2,7 +2,7 @@
     @php
         $pageTitle = 'Edit Carousel';
         $defaultImage = asset('assets/images/placeholder.svg');
-        $currentImage = $data->image_path ? asset($data->image_path) : $defaultImage;
+        $currentImage = $data->image_path ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->image_path))) : $defaultImage;
     @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>

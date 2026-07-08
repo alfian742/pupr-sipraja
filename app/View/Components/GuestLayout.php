@@ -12,6 +12,10 @@ class GuestLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.guest');
+        $layout = request()->routeIs('ikli-survey.*')
+            ? 'layouts.ikli-survey'
+            : 'layouts.guest';
+
+        return view($layout);
     }
 }
