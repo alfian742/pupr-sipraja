@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /ikli-survey/dashboard
+Disallow: /ikli-survey/dashboard/
+
+Sitemap: https://sipraja.lomboktengahkab.go.id/sitemap.xml

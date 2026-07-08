@@ -9,6 +9,8 @@ npm-debug.log
 yarn-error.log
 storage/app/*
 !storage/app/.gitignore
+!storage/app/templates/
+!storage/app/templates/**
 storage/framework/cache/*
 !storage/framework/cache/.gitignore
 storage/framework/sessions/*

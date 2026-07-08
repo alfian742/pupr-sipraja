@@ -31,7 +31,10 @@ use App\Http\Controllers\PersonnelProfileController;
 use App\Http\Controllers\PublicInformationPortalController;
 use App\Http\Controllers\RealizationController;
 use App\Http\Controllers\RegionalPerformanceIndicatorController;
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 
 Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_department', 'active'])->prefix('dashboard')->name('dashboard.')->group(function () {
     // Dasbor

@@ -1,4 +1,4 @@
-map "false" $phpmyadmin_allowed {
+map "${PHPMYADMIN_ENABLED}" $phpmyadmin_allowed {
     default 0;
     ~*^true$ 1;
 }
