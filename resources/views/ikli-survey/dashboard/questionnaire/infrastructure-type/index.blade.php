@@ -1,5 +1,8 @@
 <x-app-layout>
-    @php $pageTitle = 'Survei - ' . $infrastructureType @endphp
+    @php
+        $pageTitle = 'Survei - ' . $infrastructureType;
+        $isSuperadmin = Auth::user()->role === 'superadmin';
+    @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 
@@ -40,23 +43,25 @@
                                     </div>
 
 
-                                    <form
-                                        action="{{ route('ikli-survey.dashboard.questionnaire.respondent.mass-destroy') }}"
-                                        method="POST" class="d-flex align-items-center" style="gap: 0.75rem">
-                                        @csrf
+                                    @if ($isSuperadmin)
+                                        <form
+                                            action="{{ route('ikli-survey.dashboard.questionnaire.respondent.mass-destroy') }}"
+                                            method="POST" class="d-flex align-items-center" style="gap: 0.75rem">
+                                            @csrf
 
-                                        <p class="mb-0">
-                                            Item terpilih: <span class="font-weight-bold" id="countItems">0</span>
-                                        </p>
+                                            <p class="mb-0">
+                                                Item terpilih: <span class="font-weight-bold" id="countItems">0</span>
+                                            </p>
 
-                                        <input type="hidden" name="infrastructure_type"
-                                            value="{{ $infrastructureTypeKey }}">
+                                            <input type="hidden" name="infrastructure_type"
+                                                value="{{ $infrastructureTypeKey }}">
 
-                                        <button class="btn btn-danger" type="button" id="btnDelete"
-                                            title="Hapus Data Terpilih" disabled>
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </form>
+                                            <button class="btn btn-danger" type="button" id="btnDelete"
+                                                title="Hapus Data Terpilih" disabled>
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
 
                                 <div class="row mb-2">
@@ -89,14 +94,17 @@
 
                                         <thead>
                                             <tr>
-                                                <th>
-                                                    <div class="d-flex align-items-center justify-content-between"
-                                                        style="gap: 1rem">
-                                                        <span>Aksi</span>
-                                                        <input type="checkbox" class="custom-form-check-input check-all"
-                                                            aria-label="Pilih Semua" title="Pilih Semua">
-                                                    </div>
-                                                </th>
+                                                @if ($isSuperadmin)
+                                                    <th>
+                                                        <div class="d-flex align-items-center justify-content-between"
+                                                            style="gap: 1rem">
+                                                            <span>Aksi</span>
+                                                            <input type="checkbox"
+                                                                class="custom-form-check-input check-all"
+                                                                aria-label="Pilih Semua" title="Pilih Semua">
+                                                        </div>
+                                                    </th>
+                                                @endif
                                                 @foreach ($column as $col)
                                                     <th>{{ $col }}</th>
                                                 @endforeach
@@ -129,6 +137,110 @@
 
         <script>
             $(document).ready(function() {
+                const isSuperadmin = @json($isSuperadmin);
+
+                let tableColumns = [{
+                        data: 'is_valid',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'survey_date',
+                        name: 'survey_date',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'respondent_id',
+                        name: 'respondent_id',
+                        defaultContent: '-',
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'district',
+                        name: 'district',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'village',
+                        name: 'village',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'gender',
+                        name: 'gender',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'age',
+                        name: 'age',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'education',
+                        name: 'education',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'occupation',
+                        name: 'occupation',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'disability_status',
+                        name: 'disability_status',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'physical_availability_score',
+                        name: 'physical_availability_score',
+                        defaultContent: '-',
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'quality_score',
+                        name: 'quality_score',
+                        defaultContent: '-',
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'suitability_score',
+                        name: 'suitability_score',
+                        defaultContent: '-',
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'utilization_score',
+                        name: 'utilization_score',
+                        defaultContent: '-',
+                        className: 'text-right'
+                    },
+                    {
+                        data: 'expectation_score',
+                        name: 'expectation_score',
+                        defaultContent: '-',
+                        className: 'text-right'
+                    }
+                ];
+
+                if (isSuperadmin) {
+                    tableColumns.unshift({
+                        data: 'action',
+                        orderable: false,
+                        searchable: false
+                    });
+                }
+
+                const surveyDateColumnIndex = isSuperadmin ? 3 : 2;
+                const respondentIdColumnIndex = isSuperadmin ? 4 : 3;
+
                 var table = $('.table-custom').DataTable({
                     processing: true,
                     serverSide: true,
@@ -143,109 +255,15 @@
                             d.village = $('#filter_village').val();
                         }
                     },
-                    columns: [{
-                            data: 'action',
-                            orderable: false,
-                            searchable: false
-                        },
-                        {
-                            data: 'is_valid',
-                            orderable: false,
-                            searchable: false,
-                            className: 'text-center'
-                        },
-                        {
-                            data: 'DT_RowIndex',
-                            name: 'DT_RowIndex',
-                            orderable: false,
-                            searchable: false,
-                            className: 'text-right'
-                        },
-                        {
-                            data: 'survey_date',
-                            name: 'survey_date',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'respondent_id',
-                            name: 'respondent_id',
-                            defaultContent: '-',
-                            className: 'text-right'
-                        },
-                        {
-                            data: 'district',
-                            name: 'district',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'village',
-                            name: 'village',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'gender',
-                            name: 'gender',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'age',
-                            name: 'age',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'education',
-                            name: 'education',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'occupation',
-                            name: 'occupation',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'disability_status',
-                            name: 'disability_status',
-                            defaultContent: '-'
-                        },
-                        {
-                            data: 'physical_availability_score',
-                            name: 'physical_availability_score',
-                            defaultContent: '-',
-                            className: 'text-right'
-                        },
-                        {
-                            data: 'quality_score',
-                            name: 'quality_score',
-                            defaultContent: '-',
-                            className: 'text-right'
-                        },
-                        {
-                            data: 'suitability_score',
-                            name: 'suitability_score',
-                            defaultContent: '-',
-                            className: 'text-right'
-                        },
-                        {
-                            data: 'utilization_score',
-                            name: 'utilization_score',
-                            defaultContent: '-',
-                            className: 'text-right'
-                        },
-                        {
-                            data: 'expectation_score',
-                            name: 'expectation_score',
-                            defaultContent: '-',
-                            className: 'text-right'
-                        }
-                    ],
+                    columns: tableColumns,
                     order: [
-                        ['3', 'desc'],
-                        ['4', 'desc'],
+                        [surveyDateColumnIndex, 'desc'],
+                        [respondentIdColumnIndex, 'desc'],
                     ],
                     autoWidth: false,
                     scrollX: true,
                     fixedColumns: {
-                        leftColumns: 1
+                        leftColumns: isSuperadmin ? 1 : 0
                     },
                     language: {
                         url: "{{ asset('app-assets/data/dataTableLangId.json') }}"
@@ -276,106 +294,108 @@
                     table.draw();
                 });
 
-                // =============================
-                // REMOVE SELECTED ITEM
-                // =============================
-                const $checkAll = $('.check-all');
-                const $btnDelete = $('#btnDelete');
-                const $countItems = $('#countItems');
-                const $form = $btnDelete.closest('form');
+                if (isSuperadmin) {
+                    // =============================
+                    // REMOVE SELECTED ITEM
+                    // =============================
+                    const $checkAll = $('.check-all');
+                    const $btnDelete = $('#btnDelete');
+                    const $countItems = $('#countItems');
+                    const $form = $btnDelete.closest('form');
 
-                function updateSelectedCount() {
+                    function updateSelectedCount() {
 
-                    const $realCheckboxes = $('.dataTables_scrollBody .check-item');
-                    const $checked = $realCheckboxes.filter(':checked');
+                        const $realCheckboxes = $('.dataTables_scrollBody .check-item');
+                        const $checked = $realCheckboxes.filter(':checked');
 
-                    const totalChecked = $checked.length;
-                    const totalVisible = $realCheckboxes.length;
+                        const totalChecked = $checked.length;
+                        const totalVisible = $realCheckboxes.length;
 
-                    $countItems.text(totalChecked);
-                    $btnDelete.prop('disabled', totalChecked === 0);
+                        $countItems.text(totalChecked);
+                        $btnDelete.prop('disabled', totalChecked === 0);
 
-                    $checkAll.prop('checked', totalVisible > 0 && totalChecked === totalVisible);
-                }
-
-                // =============================
-                // EVENT: CLICK CHECK-ALL
-                // =============================
-                $(document).on('change', '.check-all', function() {
-
-                    const isChecked = $(this).is(':checked');
-
-                    const $realCheckboxes = $('.dataTables_scrollBody .check-item');
-
-                    $realCheckboxes.each(function() {
-                        const id = $(this).val();
-
-                        $('.check-item[value="' + id + '"]').prop('checked', isChecked);
-                    });
-
-                    updateSelectedCount();
-                });
-
-
-                // =============================
-                // EVENT: CLICK CHECK-ITEM
-                // =============================
-                $(document).on('change', '.check-item', function() {
-                    const id = $(this).val();
-                    const isChecked = $(this).is(':checked');
-
-                    $('.check-item[value="' + id + '"]').prop('checked', isChecked);
-
-                    updateSelectedCount();
-                });
-
-
-                // =============================
-                // EVENT: ON TABLE DRAW (Paging/Filter/Sort)
-                // =============================
-                table.on('draw.dt', function() {
-                    $checkAll.prop('checked', false);
-
-                    updateSelectedCount();
-                });
-
-                // =============================
-                // DELETE ACTION
-                // =============================
-                $btnDelete.on('click', function(e) {
-                    e.preventDefault();
-
-                    const $checkedItems = $('.dataTables_scrollBody .check-item:checked');
-
-                    if ($checkedItems.length === 0) {
-                        swal("Tidak ada data yang dipilih", "Silakan pilih minimal 1 data.", "info");
-                        return;
+                        $checkAll.prop('checked', totalVisible > 0 && totalChecked === totalVisible);
                     }
 
-                    swal({
-                        title: 'Hapus Data?',
-                        text: `Anda akan menghapus ${$checkedItems.length} data yang dipilih.`,
-                        icon: 'warning',
-                        buttons: ["Batal", "Ya, hapus!"],
-                        dangerMode: true,
-                    }).then((willDelete) => {
-                        if (willDelete) {
-                            $form.find('input[name="ids[]"]').remove();
+                    // =============================
+                    // EVENT: CLICK CHECK-ALL
+                    // =============================
+                    $(document).on('change', '.check-all', function() {
 
-                            $checkedItems.each(function() {
-                                $form.append(
-                                    `<input type="hidden" name="ids[]" value="${$(this).val()}">`
-                                );
-                            });
+                        const isChecked = $(this).is(':checked');
 
-                            if (typeof blockWholePage === "function") {
-                                blockWholePage("Mohon tunggu...");
-                            }
+                        const $realCheckboxes = $('.dataTables_scrollBody .check-item');
 
-                            setTimeout(() => $form.trigger('submit'), 300);
-                        }
+                        $realCheckboxes.each(function() {
+                            const id = $(this).val();
+
+                            $('.check-item[value="' + id + '"]').prop('checked', isChecked);
+                        });
+
+                        updateSelectedCount();
                     });
-                });
+
+
+                    // =============================
+                    // EVENT: CLICK CHECK-ITEM
+                    // =============================
+                    $(document).on('change', '.check-item', function() {
+                        const id = $(this).val();
+                        const isChecked = $(this).is(':checked');
+
+                        $('.check-item[value="' + id + '"]').prop('checked', isChecked);
+
+                        updateSelectedCount();
+                    });
+
+
+                    // =============================
+                    // EVENT: ON TABLE DRAW (Paging/Filter/Sort)
+                    // =============================
+                    table.on('draw.dt', function() {
+                        $checkAll.prop('checked', false);
+
+                        updateSelectedCount();
+                    });
+
+                    // =============================
+                    // DELETE ACTION
+                    // =============================
+                    $btnDelete.on('click', function(e) {
+                        e.preventDefault();
+
+                        const $checkedItems = $('.dataTables_scrollBody .check-item:checked');
+
+                        if ($checkedItems.length === 0) {
+                            swal("Tidak ada data yang dipilih", "Silakan pilih minimal 1 data.", "info");
+                            return;
+                        }
+
+                        swal({
+                            title: 'Hapus Data?',
+                            text: `Anda akan menghapus ${$checkedItems.length} data yang dipilih.`,
+                            icon: 'warning',
+                            buttons: ["Batal", "Ya, hapus!"],
+                            dangerMode: true,
+                        }).then((willDelete) => {
+                            if (willDelete) {
+                                $form.find('input[name="ids[]"]').remove();
+
+                                $checkedItems.each(function() {
+                                    $form.append(
+                                        `<input type="hidden" name="ids[]" value="${$(this).val()}">`
+                                    );
+                                });
+
+                                if (typeof blockWholePage === "function") {
+                                    blockWholePage("Mohon tunggu...");
+                                }
+
+                                setTimeout(() => $form.trigger('submit'), 300);
+                            }
+                        });
+                    });
+                }
             });
         </script>
 
