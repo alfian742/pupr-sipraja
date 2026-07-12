@@ -102,9 +102,9 @@
 
     @push('scripts')
         <script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
-        <script src="{{ asset('public/app-assets/js/scripts/ckeditor-config.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/ckeditor-config.js') }}"></script>
 
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const btnSubmit = document.getElementById("btnSubmit");

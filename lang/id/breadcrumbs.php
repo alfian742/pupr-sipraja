@@ -30,6 +30,7 @@ return [
     'articles' => 'Artikel',
     'hero-carousels' => 'Carousel',
     'public-information-portals' => 'Portal Informasi Publik',
+    'ikli-survey' => 'Survei IKLI',
 
     'users' => 'Kelola Pengguna',
 

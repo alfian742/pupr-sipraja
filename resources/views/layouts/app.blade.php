@@ -10,8 +10,8 @@
     <title>{{ isset($title) ? $title . ' | ' : '' }}{{ config('app.name', 'Laravel') }}</title>
 
     <!-- FAVICON -->
-    <link rel="apple-touch-icon" href="{{ asset('public/assets/images/logo-sipraja.png') }}">
-    <link rel="shortcut icon" href="{{ asset('public/assets/images/logo-sipraja.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/logo-sipraja.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo-sipraja.png') }}">
 
     <!-- GOOGLE WEB FONTS -->
     <link
@@ -19,30 +19,26 @@
         rel="stylesheet">
 
     <!-- BEGIN VENDOR CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/css/vendors.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/vendors/css/extensions/sweetalert.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/vendors.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/vendors/css/extensions/sweetalert.css') }}">
     <!-- END VENDOR CSS-->
 
     <!-- BEGIN ROBUST CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/css/app.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/app.css') }}">
     <!-- END ROBUST CSS-->
 
     <!-- BEGIN PAGE CSS-->
     <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/css/core/menu/menu-types/vertical-menu.min.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/css/core/colors/palette-gradient.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/css/core/colors/palette-climacon.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/css/core/colors/palette-callout.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/css/pages/users.css') }}">
+        href="{{ asset('app-assets/css/core/menu/menu-types/vertical-menu.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/core/colors/palette-gradient.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/core/colors/palette-climacon.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/core/colors/palette-callout.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/users.css') }}">
     @stack('styles')
     <!-- END PAGE CSS-->
 
     <!-- BEGIN CUSTOM CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/assets/css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
     <!-- END CUSTOM CSS-->
 </head>
 
@@ -58,7 +54,7 @@
     <!-- ////////////////////////////////////////////////////////////////////////////-->
     <div class="app-content content">
         <div class="content-wrapper my-2">
-            @if (!request()->routeIs('dashboard.index'))
+            @if (!request()->routeIs('dashboard.index') && !request()->routeIs('ikli-survey.*'))
                 {{-- Breadcrumb --}}
                 @include('layouts.partials.breadcrumb')
             @endif
@@ -78,24 +74,24 @@
     @include('layouts.partials.footer')
 
     <!-- BEGIN VENDOR JS-->
-    <script src="{{ asset('public/app-assets/vendors/js/vendors.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/vendors.min.js') }}"></script>
     <!-- BEGIN VENDOR JS-->
 
     <!-- BEGIN PAGE VENDOR JS-->
-    <script src="{{ asset('public/app-assets/vendors/js/ui/jquery.sticky.js') }}"></script>
-    <script src="{{ asset('public/app-assets/vendors/js/ui/headroom.min.js') }}"></script>
-    <script src="{{ asset('public/app-assets/vendors/js/extensions/sweetalert.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/ui/jquery.sticky.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/ui/headroom.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/extensions/sweetalert.min.js') }}"></script>
     @stack('scripts')
     <!-- END PAGE VENDOR JS-->
 
     <!-- BEGIN ROBUST JS-->
-    <script src="{{ asset('public/app-assets/js/core/app-menu.js') }}"></script>
-    <script src="{{ asset('public/app-assets/js/core/app.js') }}"></script>
-    <script src="{{ asset('public/app-assets/js/scripts/customizer.min.js') }}"></script>
+    <script src="{{ asset('app-assets/js/core/app-menu.js') }}"></script>
+    <script src="{{ asset('app-assets/js/core/app.js') }}"></script>
+    <script src="{{ asset('app-assets/js/scripts/customizer.min.js') }}"></script>
     <!-- END ROBUST JS-->
 
     <!-- BEGIN CUSTOM JS-->
-    <script src="{{ asset('public/assets/js/scripts.js') }}"></script>
+    <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <!-- END CUSTOM JS-->
 </body>
 

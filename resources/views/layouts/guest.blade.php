@@ -88,8 +88,8 @@
     @endif
 
     <!-- Favicon -->
-    <link rel="apple-touch-icon" href="{{ asset('public/assets/images/logo-loteng-square.png') }}">
-    <link rel="shortcut icon" href="{{ asset('public/assets/images/logo-loteng-square.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/logo-loteng-square.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo-loteng-square.png') }}">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -101,10 +101,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="{{ asset('public/landing/css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ asset('landing/css/bootstrap.css') }}" rel="stylesheet">
 
     <!-- Template Stylesheet -->
-    <link href="{{ asset('public/landing/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('landing/css/style.css') }}" rel="stylesheet">
 
     <!-- BEGIN CUSTOM CSS-->
     @stack('styles')
@@ -190,7 +190,7 @@
         <div class="container px-4">
             <a href="{{ route('home') }}" class="navbar-brand">
                 <img alt="Logo {{ config('app.subname', 'Laravel') }}"
-                    src="{{ asset('public/assets/images/logo-pupr-loteng.png') }}" height="40">
+                    src="{{ asset('assets/images/logo-pupr-loteng.png') }}" height="40">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarCollapse">
@@ -458,12 +458,12 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="{{ asset('public/app-assets/vendors/js/extensions/sweetalert.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/extensions/sweetalert.min.js') }}"></script>
 
     <!-- Template Javascript -->
     @stack('scripts')
-    <script src="{{ asset('public/landing/js/main.js') }}"></script>
-    <script src="{{ asset('public/landing/js/loader.js') }}"></script>
+    <script src="{{ asset('landing/js/main.js') }}"></script>
+    <script src="{{ asset('landing/js/loader.js') }}"></script>
 
     <x-sweet-alert />
 </body>

@@ -113,7 +113,7 @@
     </div>
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

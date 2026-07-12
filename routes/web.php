@@ -9,6 +9,19 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DownloadCenterController;
 use App\Http\Controllers\FAQController;
 use App\Http\Controllers\HeroCarouselController;
+use App\Http\Controllers\IkliSurvey\DashboardController as IkliSurveyDashboardController;
+use App\Http\Controllers\IkliSurvey\HomeController;
+use App\Http\Controllers\IkliSurvey\InternetNetworkController;
+use App\Http\Controllers\IkliSurvey\IrrigationController;
+use App\Http\Controllers\IkliSurvey\PowerGridController;
+use App\Http\Controllers\IkliSurvey\QuestionnaireQuestionController;
+use App\Http\Controllers\IkliSurvey\RegionController;
+use App\Http\Controllers\IkliSurvey\RespondentController;
+use App\Http\Controllers\IkliSurvey\RoadController;
+use App\Http\Controllers\IkliSurvey\TransportationTerminalController;
+use App\Http\Controllers\IkliSurvey\WasteManagementSystemController;
+use App\Http\Controllers\IkliSurvey\WastewaterManagementSystemController;
+use App\Http\Controllers\IkliSurvey\WaterSupplySystemController;
 use App\Http\Controllers\MainPerformanceIndicatorController;
 use App\Http\Controllers\LsPaymentController;
 use App\Http\Controllers\ProfileController;
@@ -246,6 +259,201 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
             Route::get('/{id}/edit', [HeroCarouselController::class, 'edit'])->name('edit');
             Route::put('/{id}', [HeroCarouselController::class, 'update'])->name('update');
         });
+    });
+});
+
+Route::prefix('ikli-survey')->name('ikli-survey.')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_department', 'active'])
+        ->prefix('dashboard')
+        ->name('dashboard.')
+        ->group(function () {
+            // Dasbor
+            Route::get('/', [IkliSurveyDashboardController::class, 'index'])->name('index');
+
+            // Tentang
+            Route::get('/about', [IkliSurveyDashboardController::class, 'about'])->name('about');
+
+            Route::prefix('questionnaire')->name('questionnaire.')->group(function () {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Statistik Kuesioner
+                |--------------------------------------------------------------------------
+                | Semua role boleh lihat
+                */
+                Route::get('/statistic', [IkliSurveyDashboardController::class, 'getQuestionnaireStatistic'])->name('statistic');
+                Route::get('/district-statistic', [IkliSurveyDashboardController::class, 'getDistrictStatistic'])->name('district-statistic');
+                Route::get('/respondent-statistic', [IkliSurveyDashboardController::class, 'getRespondentStatistic'])->name('respondent-statistic');
+                Route::get('/priority-statistic', [IkliSurveyDashboardController::class, 'getPriorityStatistic'])->name('priority-statistic');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Pertanyaan
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('question')->name('question.')->group(function () {
+                    // Semua role boleh lihat
+                    Route::get('/', [QuestionnaireQuestionController::class, 'index'])->name('index');
+                    Route::get('/data', [QuestionnaireQuestionController::class, 'getData'])->name('data');
+
+                    // Hanya superadmin
+                    Route::middleware(['role:superadmin'])->group(function () {
+                        Route::get('/template', [QuestionnaireQuestionController::class, 'getTemplate'])->name('template');
+                        Route::post('/import', [QuestionnaireQuestionController::class, 'import'])->name('import');
+                    });
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Responden
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('respondent')->name('respondent.')->group(function () {
+                    // Semua role boleh lihat
+                    Route::get('/', [RespondentController::class, 'respondentSampel'])->name('index');
+                    Route::get('/slovin-formula', [RespondentController::class, 'slovinFormula'])->name('slovin');
+                    Route::get('/krejcie-morgan-formula', [RespondentController::class, 'krejcieMorganFormula'])->name('krejcie-morgan');
+
+                    // Hanya superadmin
+                    Route::middleware(['role:superadmin'])->group(function () {
+                        Route::post('/mass-destroy', [RespondentController::class, 'massDestroy'])->name('mass-destroy');
+                        Route::get('/{id}/{infrastructureType}', [RespondentController::class, 'edit'])->name('edit');
+                        Route::put('/{id}/{infrastructureType}', [RespondentController::class, 'update'])->name('update');
+                        Route::delete('/{id}/{infrastructureType}', [RespondentController::class, 'destroy'])->name('destroy');
+                    });
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Monitoring
+                |--------------------------------------------------------------------------
+                | Semua role boleh lihat
+                */
+                Route::prefix('monitor')->name('monitor.')->group(function () {
+                    Route::get('/by-date', [RespondentController::class, 'monitorByDate'])->name('date');
+                    Route::get('/by-district', [RespondentController::class, 'monitorByDistrict'])->name('district');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Hasil Survei - Infrastructure Improvement
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('infrastructure-improvement')->name('infrastructure-improvement.')->group(function () {
+                    Route::get('/', [RespondentController::class, 'index'])->name('index');
+                    Route::get('/data', [RespondentController::class, 'getData'])->name('data');
+                    Route::post('/export', [RespondentController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Jaringan Internet
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('internet-network')->name('internet-network.')->group(function () {
+                    Route::get('/', [InternetNetworkController::class, 'index'])->name('index');
+                    Route::get('/data', [InternetNetworkController::class, 'getData'])->name('data');
+                    Route::get('/recap', [InternetNetworkController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [InternetNetworkController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [InternetNetworkController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Irigasi
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('irrigation')->name('irrigation.')->group(function () {
+                    Route::get('/', [IrrigationController::class, 'index'])->name('index');
+                    Route::get('/data', [IrrigationController::class, 'getData'])->name('data');
+                    Route::get('/recap', [IrrigationController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [IrrigationController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [IrrigationController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Listrik
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('power-grid')->name('power-grid.')->group(function () {
+                    Route::get('/', [PowerGridController::class, 'index'])->name('index');
+                    Route::get('/data', [PowerGridController::class, 'getData'])->name('data');
+                    Route::get('/recap', [PowerGridController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [PowerGridController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [PowerGridController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Jalan
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('road')->name('road.')->group(function () {
+                    Route::get('/', [RoadController::class, 'index'])->name('index');
+                    Route::get('/data', [RoadController::class, 'getData'])->name('data');
+                    Route::get('/recap', [RoadController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [RoadController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [RoadController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Sistem Pengelolaan Air Limbah
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('wastewater-management-system')->name('wastewater-management-system.')->group(function () {
+                    Route::get('/', [WastewaterManagementSystemController::class, 'index'])->name('index');
+                    Route::get('/data', [WastewaterManagementSystemController::class, 'getData'])->name('data');
+                    Route::get('/recap', [WastewaterManagementSystemController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [WastewaterManagementSystemController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [WastewaterManagementSystemController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Sistem Pengelolaan Persampahan
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('waste-management-system')->name('waste-management-system.')->group(function () {
+                    Route::get('/', [WasteManagementSystemController::class, 'index'])->name('index');
+                    Route::get('/data', [WasteManagementSystemController::class, 'getData'])->name('data');
+                    Route::get('/recap', [WasteManagementSystemController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [WasteManagementSystemController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [WasteManagementSystemController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Sistem Penyediaan Air Minum
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('water-supply-system')->name('water-supply-system.')->group(function () {
+                    Route::get('/', [WaterSupplySystemController::class, 'index'])->name('index');
+                    Route::get('/data', [WaterSupplySystemController::class, 'getData'])->name('data');
+                    Route::get('/recap', [WaterSupplySystemController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [WaterSupplySystemController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [WaterSupplySystemController::class, 'export'])->name('export');
+                });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Terminal
+                |--------------------------------------------------------------------------
+                */
+                Route::prefix('transportation-terminal')->name('transportation-terminal.')->group(function () {
+                    Route::get('/', [TransportationTerminalController::class, 'index'])->name('index');
+                    Route::get('/data', [TransportationTerminalController::class, 'getData'])->name('data');
+                    Route::get('/recap', [TransportationTerminalController::class, 'recap'])->name('recap');
+                    Route::get('/recap-data', [TransportationTerminalController::class, 'getRecapData'])->name('recap-data');
+                    Route::post('/export', [TransportationTerminalController::class, 'export'])->name('export');
+                });
+            });
+        });
+
+    Route::prefix('region')->name('region.')->group(function () {
+        Route::get('/districts', [RegionController::class, 'districtList'])->name('districts');
+        Route::get('/villages', [RegionController::class, 'villageList'])->name('villages');
     });
 });
 

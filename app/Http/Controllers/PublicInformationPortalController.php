@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -65,10 +65,14 @@ class PublicInformationPortalController extends Controller
                             </a>';
                 })
                 ->addColumn('logo', function ($data) {
-                    $defaultLogo = 'public/assets/images/logo-loteng-square.png';
+                    $defaultLogo = 'assets/images/logo-loteng-square.png';
 
-                    $logoPath = (!empty($data->logo) && File::exists(public_path($data->logo)))
-                        ? 'public/' . $data->logo
+                    $logoDiskPath = !empty($data->logo)
+                        ? Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $data->logo))
+                        : null;
+
+                    $logoPath = ($logoDiskPath && Storage::disk('public')->exists($logoDiskPath))
+                        ? 'storage/' . $logoDiskPath
                         : $defaultLogo;
 
                     return '<img src="' . asset($logoPath) . '"
@@ -118,15 +122,11 @@ class PublicInformationPortalController extends Controller
 
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $destinationPath = public_path('uploads/images/public-information-portals');
+                $destinationPath = 'images/public-information-portals';
 
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
+                Storage::disk('public')->putFileAs($destinationPath, $file, $filename);
 
-                $file->move($destinationPath, $filename);
-
-                $logoPath = 'uploads/images/public-information-portals/' . $filename;
+                $logoPath = 'images/public-information-portals/' . $filename;
             }
 
             PublicInformationPortal::create([
@@ -172,32 +172,36 @@ class PublicInformationPortalController extends Controller
 
         try {
             $logoPath = $data->logo;
-            $destinationPath = public_path('uploads/images/public-information-portals');
-
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
+            $destinationPath = 'images/public-information-portals';
 
             if ($request->filled('remove_logo') && $request->remove_logo == 1) {
-                if ($logoPath && File::exists(public_path($logoPath))) {
-                    File::delete(public_path($logoPath));
+                if ($logoPath) {
+                    $logoDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $logoPath));
+
+                    if (Storage::disk('public')->exists($logoDiskPath)) {
+                        Storage::disk('public')->delete($logoDiskPath);
+                    }
                 }
 
                 $logoPath = null;
             }
 
             if ($request->hasFile('logo')) {
-                if ($logoPath && File::exists(public_path($logoPath))) {
-                    File::delete(public_path($logoPath));
+                if ($logoPath) {
+                    $logoDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $logoPath));
+
+                    if (Storage::disk('public')->exists($logoDiskPath)) {
+                        Storage::disk('public')->delete($logoDiskPath);
+                    }
                 }
 
                 $file = $request->file('logo');
 
                 $newFilename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $file->move($destinationPath, $newFilename);
+                Storage::disk('public')->putFileAs($destinationPath, $file, $newFilename);
 
-                $logoPath = 'uploads/images/public-information-portals/' . $newFilename;
+                $logoPath = 'images/public-information-portals/' . $newFilename;
             }
 
             $data->update([
@@ -244,8 +248,12 @@ class PublicInformationPortalController extends Controller
             foreach ($organizations as $data) {
                 $logoPath = $data->logo;
 
-                if ($logoPath && File::exists(public_path($logoPath))) {
-                    File::delete(public_path($logoPath));
+                if ($logoPath) {
+                    $logoDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $logoPath));
+
+                    if (Storage::disk('public')->exists($logoDiskPath)) {
+                        Storage::disk('public')->delete($logoDiskPath);
+                    }
                 }
             }
 

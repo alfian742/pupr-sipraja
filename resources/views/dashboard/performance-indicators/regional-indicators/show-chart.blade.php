@@ -63,7 +63,7 @@
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/vendors/js/charts/chart.min.js') }}"></script>
+        <script src="{{ asset('app-assets/vendors/js/charts/chart.min.js') }}"></script>
 
         <script>
             const REGIONAL_INDICATOR_CONFIG = {

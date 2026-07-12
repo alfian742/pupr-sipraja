@@ -1,7 +1,7 @@
 <x-guest-layout>
     @php
-        $defaultThumbnail = asset('public/assets/images/placeholder.svg');
-        $currentThumbnail = $article->thumbnail ? asset('public/' . $article->thumbnail) : $defaultThumbnail;
+        $defaultThumbnail = asset('assets/images/placeholder.svg');
+        $currentThumbnail = $article->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $article->thumbnail))) : $defaultThumbnail;
 
         $plainMetaSource = trim(preg_replace('/\s+/', ' ', strip_tags($article->excerpt ?: $article->content)));
 
@@ -157,7 +157,7 @@
                                 <div class="col-md-4">
                                     <article class="card h-100 zoom-hover overflow-hidden rounded border-0 shadow-sm">
                                         <a href="{{ route('blog.show', $item->slug) }}" class="text-decoration-none">
-                                            <img src="{{ $item->thumbnail ? asset('public/' . $item->thumbnail) : asset('public/assets/images/placeholder.svg') }}"
+                                            <img src="{{ $item->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->thumbnail))) : asset('assets/images/placeholder.svg') }}"
                                                 class="card-img-top"
                                                 style="height: 150px; aspect-ratio: 4/3; object-fit: cover;"
                                                 alt="{{ $item->title ?? 'Artikel Terkait' }}">
@@ -236,7 +236,7 @@
                         @forelse ($featuredArticles as $item)
                             <div class="d-flex mb-3 pb-3 border-bottom">
                                 <a href="{{ route('blog.show', $item->slug) }}" class="me-3 flex-shrink-0">
-                                    <img src="{{ $item->thumbnail ? asset('public/' . $item->thumbnail) : asset('public/assets/images/placeholder.svg') }}"
+                                    <img src="{{ $item->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->thumbnail))) : asset('assets/images/placeholder.svg') }}"
                                         class="rounded" style="height: 76px; aspect-ratio: 4/3; object-fit: cover;"
                                         alt="{{ $item->title ?? 'Artikel Unggulan' }}">
                                 </a>

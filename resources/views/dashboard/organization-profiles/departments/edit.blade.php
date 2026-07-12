@@ -1,8 +1,8 @@
 <x-app-layout>
     @php
         $pageTitle = 'Edit Bidang';
-        $defaultLogo = asset('public/assets/images/placeholder.svg');
-        $currentLogo = $data->logo ? asset('public/' . $data->logo) : $defaultLogo;
+        $defaultLogo = asset('assets/images/placeholder.svg');
+        $currentLogo = $data->logo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->logo))) : $defaultLogo;
     @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
@@ -114,7 +114,7 @@
     </div>
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

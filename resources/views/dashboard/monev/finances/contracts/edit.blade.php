@@ -143,6 +143,9 @@
                                                             {{ old('department', $data->department) == 'SEK' ? 'selected' : '' }}>
                                                             SEK
                                                         </option>
+                                                        <option value="TATA RUANG"
+                                                            {{ old('department', $data->department) == 'TATA RUANG' ? 'selected' : '' }}>
+                                                            TATA RUANG</option>
                                                     </select>
 
                                                     @error('department')
@@ -245,7 +248,7 @@
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

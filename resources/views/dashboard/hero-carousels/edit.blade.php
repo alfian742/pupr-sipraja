@@ -1,8 +1,8 @@
 <x-app-layout>
     @php
         $pageTitle = 'Edit Carousel';
-        $defaultImage = asset('public/assets/images/placeholder.svg');
-        $currentImage = $data->image_path ? asset('public/' . $data->image_path) : $defaultImage;
+        $defaultImage = asset('assets/images/placeholder.svg');
+        $currentImage = $data->image_path ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->image_path))) : $defaultImage;
     @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
@@ -147,7 +147,7 @@
     </div>
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

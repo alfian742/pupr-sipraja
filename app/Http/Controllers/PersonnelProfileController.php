@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -42,11 +42,15 @@ class PersonnelProfileController extends Controller
                     ';
                 })
                 ->addColumn('personnel_photo', function ($data) {
-                    $defaultPhoto = 'public/assets/images/avatar.png';
+                    $defaultPhoto = 'assets/images/avatar.png';
 
                     // Periksa apakah foto ada dan file benar-benar ada di server
-                    $photoPath = (!empty($data->personnel_photo) && File::exists(public_path($data->personnel_photo)))
-                        ? 'public/' . $data->personnel_photo
+                    $photoDiskPath = !empty($data->personnel_photo)
+                        ? Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $data->personnel_photo))
+                        : null;
+
+                    $photoPath = ($photoDiskPath && Storage::disk('public')->exists($photoDiskPath))
+                        ? 'storage/' . $photoDiskPath
                         : $defaultPhoto;
 
                     // Kembalikan elemen img dengan atribut yang rapi
@@ -103,19 +107,14 @@ class PersonnelProfileController extends Controller
                 // Generate nama file unik
                 $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                // Tentukan folder tujuan di public
-                $destinationPath = public_path('uploads/images/personnel');
+                // Tentukan folder tujuan di disk public
+                $destinationPath = 'images/personnel';
 
-                // Buat folder jika belum ada
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
+                // Simpan file ke storage/app/public
+                Storage::disk('public')->putFileAs($destinationPath, $file, $filename);
 
-                // Pindahkan file langsung ke public
-                $file->move($destinationPath, $filename);
-
-                // Simpan path relatif untuk database
-                $photoPath = 'uploads/images/personnel/' . $filename;
+                // Simpan path publik untuk database
+                $photoPath = 'images/personnel/' . $filename;
             }
 
             PersonnelProfile::create([
@@ -160,17 +159,16 @@ class PersonnelProfileController extends Controller
         try {
 
             $photoPath = $data->personnel_photo;
-            $destinationPath = public_path('uploads/images/personnel');
-
-            // Pastikan folder ada
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
+            $destinationPath = 'images/personnel';
 
             if ($request->filled('remove_photo') && $request->remove_photo == 1) {
 
-                if ($photoPath && File::exists(public_path($photoPath))) {
-                    File::delete(public_path($photoPath));
+                if ($photoPath) {
+                    $photoDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $photoPath));
+
+                    if (Storage::disk('public')->exists($photoDiskPath)) {
+                        Storage::disk('public')->delete($photoDiskPath);
+                    }
                 }
 
                 $photoPath = null;
@@ -179,16 +177,20 @@ class PersonnelProfileController extends Controller
             if ($request->hasFile('personnel_photo')) {
 
                 // Hapus foto lama jika ada
-                if ($photoPath && File::exists(public_path($photoPath))) {
-                    File::delete(public_path($photoPath));
+                if ($photoPath) {
+                    $photoDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $photoPath));
+
+                    if (Storage::disk('public')->exists($photoDiskPath)) {
+                        Storage::disk('public')->delete($photoDiskPath);
+                    }
                 }
 
                 $file = $request->file('personnel_photo');
                 $newFilename = Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-                $file->move($destinationPath, $newFilename);
+                Storage::disk('public')->putFileAs($destinationPath, $file, $newFilename);
 
-                $photoPath = 'uploads/images/personnel/' . $newFilename;
+                $photoPath = 'images/personnel/' . $newFilename;
             }
 
             $data->update([
@@ -237,8 +239,12 @@ class PersonnelProfileController extends Controller
                 $photoPath = $data->personnel_photo;
 
                 // Hapus file jika ada
-                if ($photoPath && File::exists(public_path($photoPath))) {
-                    File::delete(public_path($photoPath));
+                if ($photoPath) {
+                    $photoDiskPath = Str::replaceStart('storage/', '', Str::replaceStart('uploads/', '', $photoPath));
+
+                    if (Storage::disk('public')->exists($photoDiskPath)) {
+                        Storage::disk('public')->delete($photoDiskPath);
+                    }
                 }
             }
 

@@ -166,7 +166,7 @@
 
                                                         <div class="mb-2">
                                                             <img id="previewImage"
-                                                                src="{{ asset('public/assets/images/placeholder.svg') }}"
+                                                                src="{{ asset('assets/images/placeholder.svg') }}"
                                                                 class="d-block mx-auto rounded shadow-sm"
                                                                 style="height:240px; aspect-ratio: 4 / 3; object-fit: cover;">
                                                         </div>
@@ -319,14 +319,14 @@
 
     @push('styles')
         <link rel="stylesheet" type="text/css"
-            href="{{ asset('public/app-assets/vendors/css/forms/selects/select2.min.css') }}">
+            href="{{ asset('app-assets/vendors/css/forms/selects/select2.min.css') }}">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
+        <script src="{{ asset('app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
         <script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
-        <script src="{{ asset('public/app-assets/js/scripts/ckeditor-blog-config.js') }}"></script>
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/ckeditor-blog-config.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -374,7 +374,7 @@
                     $inputThumbnail.next().text("Pilih Berkas");
                     $frontendError.addClass('d-none').text('');
                     $btnRemove.addClass('d-none');
-                    $previewImage.attr('src', "{{ asset('public/assets/images/placeholder.svg') }}");
+                    $previewImage.attr('src', "{{ asset('assets/images/placeholder.svg') }}");
                 }
 
                 $inputThumbnail.on('change', function(e) {

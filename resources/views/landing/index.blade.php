@@ -62,8 +62,8 @@
                                 @forelse ($carousels as $index => $carousel)
                                     @php
                                         $image = $carousel->image_path
-                                            ? asset('public/' . $carousel->image_path)
-                                            : asset('public/assets/images/placeholder.svg');
+                                            ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $carousel->image_path)))
+                                            : asset('assets/images/placeholder.svg');
 
                                         $altText = trim(
                                             $carousel->title . ' ' . strip_tags($carousel->description ?? ''),
@@ -76,8 +76,8 @@
                                     </div>
                                 @empty
                                     <div class="carousel-item active h-100">
-                                        <img src="{{ asset('public/landing/img/hero.jpg') }}"
-                                            class="d-block w-100 h-100" alt="Foto DPUPR Kabupaten Lombok Tengah">
+                                        <img src="{{ asset('landing/img/hero.jpg') }}" class="d-block w-100 h-100"
+                                            alt="Foto DPUPR Kabupaten Lombok Tengah">
                                     </div>
                                 @endforelse
                             </div>
@@ -111,7 +111,7 @@
                     <div class="about-modern-visual">
                         <div class="about-modern-visual-bg"></div>
 
-                        <img src="{{ asset('public/landing/img/about.svg') }}" class="about-modern-image"
+                        <img src="{{ asset('landing/img/about.svg') }}" class="about-modern-image"
                             alt="Illustrations by Storyset" loading="lazy">
 
                         <span class="about-modern-dot about-modern-dot-one"></span>
@@ -152,7 +152,7 @@
                             <div class="department-card-inner">
                                 <div class="department-icon-wrapper">
                                     @if (!empty($item->logo))
-                                        <img src="{{ asset('public/' . $item->logo) }}" class="department-logo"
+                                        <img src="{{ asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo))) }}" class="department-logo"
                                             alt="{{ $item->department_name }}" loadig="lazy">
                                     @else
                                         @php
@@ -210,8 +210,8 @@
                 <div class="col-lg-5">
                     <div class="vision-mission-visual">
                         <div class="vision-mission-image-card">
-                            <img src="{{ asset('public/landing/img/vision-mision.svg') }}"
-                                class="vision-mission-image" alt="Illustrations by Storyset" loading="lazy">
+                            <img src="{{ asset('landing/img/vision-mision.svg') }}" class="vision-mission-image"
+                                alt="Illustrations by Storyset" loading="lazy">
                         </div>
 
                         <span class="vision-mission-shape vision-mission-shape-one"></span>
@@ -275,7 +275,7 @@
                 @foreach ($latestArticles as $item)
                     <div class="rounded-2 h-100 overflow-hidden bg-white shadow-sm">
                         <div class="position-relative">
-                            <img src="{{ $item->thumbnail ? asset('public/' . $item->thumbnail) : asset('public/assets/images/placeholder.svg') }}"
+                            <img src="{{ $item->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->thumbnail))) : asset('assets/images/placeholder.svg') }}"
                                 class="w-100" style="aspect-ratio: 4/3; object-fit: cover;"
                                 alt="{{ $item->title ?? 'Artikel' }}">
                         </div>
@@ -452,8 +452,8 @@
                                         @foreach ($portalItems as $item)
                                             @php
                                                 $logoPath = $item->logo
-                                                    ? asset('public/' . $item->logo)
-                                                    : asset('public/assets/images/logo-loteng-square.png');
+                                                    ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo)))
+                                                    : asset('assets/images/logo-loteng-square.png');
 
                                                 $hasWebsite = !empty($item->website_url);
                                                 $isDuplicate = $loopGroup === 2;
@@ -508,18 +508,17 @@
 
     @push('styles')
         <!-- Libraries Stylesheet -->
-        <link href="{{ asset('public/landing/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
-        <link href="{{ asset('public/landing/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css') }}"
-            rel="stylesheet">
+        <link href="{{ asset('landing/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+        <link href="{{ asset('landing/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css') }}" rel="stylesheet">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/landing/lib/easing/easing.min.js') }}"></script>
-        <script src="{{ asset('public/landing/lib/waypoints/waypoints.min.js') }}"></script>
-        <script src="{{ asset('public/landing/lib/owlcarousel/owl.carousel.min.js') }}"></script>
-        <script src="{{ asset('public/landing/lib/tempusdominus/js/moment.min.js') }}"></script>
-        <script src="{{ asset('public/landing/lib/tempusdominus/js/moment-timezone.min.js') }}"></script>
-        <script src="{{ asset('public/landing/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+        <script src="{{ asset('landing/lib/easing/easing.min.js') }}"></script>
+        <script src="{{ asset('landing/lib/waypoints/waypoints.min.js') }}"></script>
+        <script src="{{ asset('landing/lib/owlcarousel/owl.carousel.min.js') }}"></script>
+        <script src="{{ asset('landing/lib/tempusdominus/js/moment.min.js') }}"></script>
+        <script src="{{ asset('landing/lib/tempusdominus/js/moment-timezone.min.js') }}"></script>
+        <script src="{{ asset('landing/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
 
         <script>
             document.getElementById('ctaBtn').addEventListener('click', function(e) {

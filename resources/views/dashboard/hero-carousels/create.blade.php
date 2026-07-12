@@ -87,7 +87,7 @@
                                             <div class="col-md-4">
                                                 <div class="mb-2">
                                                     <img id="previewImage"
-                                                        src="{{ asset('public/assets/images/placeholder.svg') }}"
+                                                        src="{{ asset('assets/images/placeholder.svg') }}"
                                                         class="d-block mx-auto rounded shadow-sm"
                                                         style="height:260px; aspect-ratio: 3 / 4; object-fit: cover;">
                                                 </div>
@@ -140,7 +140,7 @@
     </div>
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -181,7 +181,7 @@
                     $inputImage.next().text("Pilih Berkas");
                     $frontendError.addClass('d-none').text('');
                     $btnRemove.addClass('d-none');
-                    $previewImage.attr('src', "{{ asset('public/assets/images/placeholder.svg') }}");
+                    $previewImage.attr('src', "{{ asset('assets/images/placeholder.svg') }}");
                 }
 
                 $inputImage.on('change', function(e) {

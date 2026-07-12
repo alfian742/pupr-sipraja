@@ -112,7 +112,7 @@
                                             <div class="col-md-4">
                                                 <div class="mb-2">
                                                     <img id="previewImage"
-                                                        src="{{ asset('public/assets/images/avatar.png') }}"
+                                                        src="{{ asset('assets/images/avatar.png') }}"
                                                         class="d-block mx-auto rounded shadow-sm"
                                                         style="height:260px; aspect-ratio:3/4; object-fit: cover;">
                                                 </div>
@@ -165,14 +165,13 @@
     </div>
 
     @push('styles')
-        <link rel="stylesheet" type="text/css"
-            href="{{ asset('public/app-assets/vendors/css/forms/selects/select2.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/vendors/css/forms/selects/select2.min.css') }}">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
+        <script src="{{ asset('app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
 
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -267,7 +266,7 @@
                     $inputPhoto.next().text("Pilih Berkas");
                     $frontendError.addClass('d-none').text('');
                     $btnRemove.addClass('d-none');
-                    $previewImage.attr('src', "{{ asset('public/assets/images/avatar.png') }}");
+                    $previewImage.attr('src', "{{ asset('assets/images/avatar.png') }}");
                 }
 
                 $inputPhoto.on('change', function(e) {

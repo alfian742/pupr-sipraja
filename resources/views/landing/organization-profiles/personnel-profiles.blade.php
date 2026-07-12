@@ -34,7 +34,7 @@
                     <div class="card bg-light zoom-hover overflow-hidden rounded border-0 shadow-sm">
                         <div class="row g-0 align-items-center">
                             <div class="col-lg-4">
-                                <img src="{{ $item->personnel_photo ? asset('public/' . $item->personnel_photo) : asset('public/assets/images/avatar.png') }}"
+                                <img src="{{ $item->personnel_photo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->personnel_photo))) : asset('assets/images/avatar.png') }}"
                                     class="img-fluid w-100" style="object-fit: cover; aspect-ratio: 3/4;"
                                     alt="{{ $item->personnel_name ?? '' }}">
                             </div>

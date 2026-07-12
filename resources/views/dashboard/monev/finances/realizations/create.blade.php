@@ -256,13 +256,13 @@
 
     @push('styles')
         <link rel="stylesheet" type="text/css"
-            href="{{ asset('public/app-assets/vendors/css/forms/selects/select2.min.css') }}">
+            href="{{ asset('app-assets/vendors/css/forms/selects/select2.min.css') }}">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
+        <script src="{{ asset('app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
 
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             $(document).ready(function() {

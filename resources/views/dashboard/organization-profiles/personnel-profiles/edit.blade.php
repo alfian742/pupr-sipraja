@@ -113,7 +113,7 @@
                                             <div class="col-md-4">
                                                 <div class="mb-2">
                                                     <img id="previewImage"
-                                                        src="{{ $data->personnel_photo ? asset('public/' . $data->personnel_photo) : asset('public/assets/images/avatar.png') }}"
+                                                        src="{{ $data->personnel_photo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->personnel_photo))) : asset('assets/images/avatar.png') }}"
                                                         class="d-block mx-auto rounded shadow-sm"
                                                         style="height:260px; aspect-ratio:3/4; object-fit: cover;">
                                                 </div>
@@ -168,12 +168,11 @@
     </div>
 
     @push('styles')
-        <link rel="stylesheet" type="text/css"
-            href="{{ asset('public/app-assets/vendors/css/forms/selects/select2.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/vendors/css/forms/selects/select2.min.css') }}">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
+        <script src="{{ asset('app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -291,7 +290,7 @@
                     $frontendError.addClass('d-none').text('');
                     $btnRemove.addClass('d-none');
                     $previewImage.attr('src',
-                        "{{ $data->personnel_photo ? asset('public/' . $data->personnel_photo) : asset('public/assets/images/avatar.png') }}"
+                        "{{ $data->personnel_photo ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->personnel_photo))) : asset('assets/images/avatar.png') }}"
                     );
                 }
 

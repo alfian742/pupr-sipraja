@@ -1,8 +1,8 @@
 <x-app-layout>
     @php
         $pageTitle = 'Edit Artikel';
-        $defaultThumbnail = asset('public/assets/images/placeholder.svg');
-        $currentThumbnail = $data->thumbnail ? asset('public/' . $data->thumbnail) : $defaultThumbnail;
+        $defaultThumbnail = asset('assets/images/placeholder.svg');
+        $currentThumbnail = $data->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->thumbnail))) : $defaultThumbnail;
         $publishedAt = $data->published_at ? $data->published_at->format('Y-m-d\TH:i') : null;
     @endphp
 
@@ -337,14 +337,14 @@
 
     @push('styles')
         <link rel="stylesheet" type="text/css"
-            href="{{ asset('public/app-assets/vendors/css/forms/selects/select2.min.css') }}">
+            href="{{ asset('app-assets/vendors/css/forms/selects/select2.min.css') }}">
     @endpush
 
     @push('scripts')
-        <script src="{{ asset('public/app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
+        <script src="{{ asset('app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
         <script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
-        <script src="{{ asset('public/app-assets/js/scripts/ckeditor-blog-config.js') }}"></script>
-        <script src="{{ asset('public/app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/ckeditor-blog-config.js') }}"></script>
+        <script src="{{ asset('app-assets/js/scripts/extensions/block-ui-custom.js') }}"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

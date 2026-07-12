@@ -10,8 +10,8 @@
     <title>{{ isset($title) ? $title . ' | ' : '' }}{{ config('app.name', 'Laravel') }}</title>
 
     <!-- FAVICON -->
-    <link rel="apple-touch-icon" href="{{ asset('public/assets/images/logo-sipraja.png') }}">
-    <link rel="shortcut icon" href="{{ asset('public/assets/images/logo-sipraja.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/logo-sipraja.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo-sipraja.png') }}">
 
     <!-- GOOGLE WEB FONTS -->
     <link
@@ -19,21 +19,20 @@
         rel="stylesheet">
 
     <!-- BEGIN VENDOR CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/css/vendors.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/vendors/css/forms/icheck/icheck.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/vendors/css/forms/icheck/custom.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/vendors.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/vendors/css/forms/icheck/icheck.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/vendors/css/forms/icheck/custom.css') }}">
     <!-- END VENDOR CSS-->
 
     <!-- BEGIN ROBUST CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/css/app.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/app.css') }}">
     <!-- END ROBUST CSS-->
 
     <!-- BEGIN Page Level CSS-->
     <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/css/core/menu/menu-types/vertical-content-menu.css') }}">
-    <link rel="stylesheet" type="text/css"
-        href="{{ asset('public/app-assets/css/core/colors/palette-gradient.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('public/app-assets/css/pages/login-register.css') }}">
+        href="{{ asset('app-assets/css/core/menu/menu-types/vertical-content-menu.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/core/colors/palette-gradient.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/login-register.css') }}">
     <!-- END Page Level CSS-->
 
     <!-- BEGIN CUSTOM CSS-->
@@ -60,24 +59,24 @@
     <!-- ////////////////////////////////////////////////////////////////////////////-->
 
     <!-- BEGIN VENDOR JS-->
-    <script src="{{ asset('public/app-assets/vendors/js/vendors.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/vendors.min.js') }}"></script>
     <!-- BEGIN VENDOR JS-->
 
     <!-- BEGIN PAGE VENDOR JS-->
-    <script src="{{ asset('public/app-assets/vendors/js/ui/jquery.sticky.js') }}"></script>
-    <script src="{{ asset('public/app-assets/vendors/js/charts/jquery.sparkline.min.js') }}"></script>
-    <script src="{{ asset('public/app-assets/vendors/js/ui/headroom.min.js') }}"></script>
-    <script src="{{ asset('public/app-assets/vendors/js/forms/validation/jqBootstrapValidation.js') }}"></script>
-    <script src="{{ asset('public/app-assets/vendors/js/forms/icheck/icheck.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/ui/jquery.sticky.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/charts/jquery.sparkline.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/ui/headroom.min.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/forms/validation/jqBootstrapValidation.js') }}"></script>
+    <script src="{{ asset('app-assets/vendors/js/forms/icheck/icheck.min.js') }}"></script>
     <!-- END PAGE VENDOR JS-->
 
     <!-- BEGIN ROBUST JS-->
-    <script src="{{ asset('public/app-assets/js/core/app-menu.js') }}"></script>
-    <script src="{{ asset('public/app-assets/js/core/app.js') }}"></script>
+    <script src="{{ asset('app-assets/js/core/app-menu.js') }}"></script>
+    <script src="{{ asset('app-assets/js/core/app.js') }}"></script>
     <!-- END ROBUST JS-->
 
     <!-- BEGIN PAGE LEVEL JS-->
-    <script src="{{ asset('public/app-assets/js/scripts/forms/form-login-register.js') }}"></script>
+    <script src="{{ asset('app-assets/js/scripts/forms/form-login-register.js') }}"></script>
     <!-- END PAGE LEVEL JS-->
 
     <!-- BEGIN CUSTOM JS-->
