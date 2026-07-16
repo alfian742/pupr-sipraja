@@ -31,19 +31,19 @@
     }
 
     // Back to top button
-    $(window).scroll(function () {
-        if ($(this).scrollTop() > 100) {
-            if ($('.back-to-top').length) $('.back-to-top').fadeIn('slow');
-        } else {
-            if ($('.back-to-top').length) $('.back-to-top').fadeOut('slow');
-        }
+    $(window).on('scroll', function () {
+        $('.back-to-top').toggle($(this).scrollTop() > 100);
     });
-    if ($('.back-to-top').length) {
-        $('.back-to-top').click(function () {
-            $('html, body').animate({ scrollTop: 0 }, 1500, 'easeInOutExpo');
-            return false;
-        });
-    }
+
+    $('.back-to-top').on('click', function (e) {
+        e.preventDefault();
+
+        $('html, body')
+            .stop(true)
+            .animate({
+                scrollTop: 0
+            }, 400, 'swing');
+    });
 
     // Article carousel
     if ($(".article-carousel").length) {
