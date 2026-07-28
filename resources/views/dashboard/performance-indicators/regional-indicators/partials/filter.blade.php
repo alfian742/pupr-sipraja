@@ -65,6 +65,45 @@
                     </a>
                 </div>
             </form>
+
+            @if ($filterApplied)
+                <hr class="my-2">
+
+                <form action="{{ $routeList->export }}" method="GET" id="exportForm">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class="success mb-2">Ekspor Data</h4>
+
+                            <p class="mb-2">
+                                Data yang akan diekspor ditentukan berdasarkan hasil filter.
+                                Silakan pilih format ekspor untuk memulai proses ekspor data.
+                            </p>
+                        </div>
+                        <div class="col-12">
+                            <input type="hidden" name="measurement_year" value="{{ request('measurement_year') }}">
+                            <input type="hidden" name="period" value="{{ request('period') }}">
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="input-group">
+                                <select id="export_format" name="export_format"
+                                    class="custom-select @error('export_format') is-invalid @enderror" required
+                                    aria-label="Format Ekspor Data">
+                                    {{-- <option value="csv" {{ request('export_format') == 'csv' ? 'selected' : '' }}>
+                                        CSV
+                                    </option> --}}
+                                    <option value="xlsx" {{ request('export_format') == 'xlsx' ? 'selected' : '' }}>
+                                        XLSX
+                                    </option>
+                                </select>
+                                <div class="input-group-append">
+                                    <button class="btn btn-success" type="button" id="btnExport">Ekspor</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            @endif
         </div>
     </div>
 </div>

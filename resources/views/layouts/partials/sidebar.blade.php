@@ -201,7 +201,7 @@
 
                 {{-- <li class="nav-item">
                     <a href="{{ route('dashboard.development') . '?page=' . urlencode('Indikator Program') }}">
-                        <i class="icon-layers"></i>
+                        <i class="icon-trophy"></i>
                         <span class="menu-title">Indikator Program</span>
                     </a>
                 </li> --}}

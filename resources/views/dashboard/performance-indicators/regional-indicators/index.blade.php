@@ -339,6 +339,234 @@
                     });
                 });
             </script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    /*
+                    |--------------------------------------------------------------------------
+                    | EXPORT REGIONAL PERFORMANCE INDICATOR (TOKEN + POLLING)
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const exportForm = document.getElementById('exportForm');
+                    const btnExport = document.getElementById('btnExport');
+
+                    const measurementYearInput = document.getElementById(
+                        'export_measurement_year'
+                    );
+
+                    const periodInput = document.getElementById('export_period');
+                    const formatInput = document.getElementById('export_format');
+
+                    const checkUrl =
+                        "{{ $routeList->checkExport }}";
+
+                    function validateExport() {
+                        const format = formatInput ? formatInput.value : '';
+
+                        if (!format) {
+                            swal({
+                                title: 'Format belum dipilih',
+                                text: 'Silakan pilih format file XLSX atau CSV.',
+                                icon: 'warning',
+                            });
+
+                            return false;
+                        }
+
+                        if (!['xlsx', 'csv'].includes(format)) {
+                            swal({
+                                title: 'Format tidak valid',
+                                text: 'Format ekspor hanya mendukung XLSX atau CSV.',
+                                icon: 'warning',
+                            });
+
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    function startPolling(token) {
+                        const startedAt = Date.now();
+                        const maxWaitMs = 10 * 60 * 1000;
+
+                        const interval = setInterval(() => {
+                            if (Date.now() - startedAt > maxWaitMs) {
+                                clearInterval(interval);
+
+                                if (typeof unblockWholePage === 'function') {
+                                    unblockWholePage();
+                                }
+
+                                swal({
+                                    title: 'Ekspor masih diproses',
+                                    text: 'Data cukup besar. Silakan coba kembali beberapa saat lagi.',
+                                    icon: 'warning',
+                                });
+
+                                return;
+                            }
+
+                            fetch(
+                                    `${checkUrl}?token=${encodeURIComponent(token)}`, {
+                                        method: 'GET',
+                                        headers: {
+                                            'Accept': 'application/json',
+                                        },
+                                    }
+                                )
+                                .then(async response => {
+                                    const result = await response.json();
+
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            result.message ||
+                                            'Gagal memeriksa status ekspor.'
+                                        );
+                                    }
+
+                                    return result;
+                                })
+                                .then(result => {
+                                    if (
+                                        result &&
+                                        result.ready &&
+                                        result.download_url
+                                    ) {
+                                        clearInterval(interval);
+
+                                        if (typeof unblockWholePage === 'function') {
+                                            unblockWholePage();
+                                        }
+
+                                        window.location.href = result.download_url;
+                                        return;
+                                    }
+
+                                    if (
+                                        result && ['failed', 'not_found'].includes(result.status)
+                                    ) {
+                                        clearInterval(interval);
+
+                                        if (typeof unblockWholePage === 'function') {
+                                            unblockWholePage();
+                                        }
+
+                                        swal({
+                                            title: 'Ekspor gagal',
+                                            text: result.status === 'not_found' ?
+                                                'Status ekspor tidak ditemukan atau sudah kedaluwarsa.' :
+                                                'Terjadi kesalahan saat membuat file ekspor.',
+                                            icon: 'error',
+                                        });
+                                    }
+                                })
+                                .catch(() => {
+                                    // Polling berikutnya tetap dilanjutkan.
+                                });
+                        }, 2000);
+
+                        return interval;
+                    }
+
+                    if (exportForm && btnExport) {
+                        btnExport.addEventListener('click', function(event) {
+                            event.preventDefault();
+
+                            if (!validateExport()) {
+                                return;
+                            }
+
+                            const measurementYear = measurementYearInput ?
+                                measurementYearInput.value :
+                                '';
+
+                            const period = periodInput ?
+                                periodInput.value :
+                                '';
+
+                            const selectedFormat = formatInput ?
+                                formatInput.value.toUpperCase() :
+                                'XLSX';
+
+                            const indicatorType = "{{ $type }}";
+
+                            const yearLabel = measurementYear || 'Semua Tahun';
+                            const periodLabel = period || 'Semua Periode';
+
+                            swal({
+                                title: 'Ekspor Data?',
+                                text: `Data Indikator Kinerja Daerah: ${indicatorType} akan diekspor dalam format ${selectedFormat} dengan filter ${yearLabel} dan ${periodLabel}.`,
+                                icon: 'info',
+                                buttons: ['Batal', 'Ya, Ekspor!'],
+                            }).then(willExport => {
+                                if (!willExport) {
+                                    return;
+                                }
+
+                                if (typeof blockWholePage === 'function') {
+                                    blockWholePage(
+                                        'Proses ekspor sedang disiapkan...'
+                                    );
+                                }
+
+                                const params = new URLSearchParams(
+                                    new FormData(exportForm)
+                                );
+
+                                fetch(
+                                        `${exportForm.action}?${params.toString()}`, {
+                                            method: 'GET',
+                                            headers: {
+                                                'Accept': 'application/json',
+                                            },
+                                        }
+                                    )
+                                    .then(async response => {
+                                        const result = await response.json();
+
+                                        if (!response.ok) {
+                                            throw new Error(
+                                                result.message ||
+                                                'Gagal memulai proses ekspor.'
+                                            );
+                                        }
+
+                                        return result;
+                                    })
+                                    .then(result => {
+                                        if (!result.token) {
+                                            throw new Error(
+                                                'Token ekspor tidak ditemukan.'
+                                            );
+                                        }
+
+                                        if (typeof blockWholePage === 'function') {
+                                            blockWholePage(
+                                                'Ekspor sedang diproses di server...'
+                                            );
+                                        }
+
+                                        startPolling(result.token);
+                                    })
+                                    .catch(error => {
+                                        if (typeof unblockWholePage === 'function') {
+                                            unblockWholePage();
+                                        }
+
+                                        swal({
+                                            title: 'Gagal memulai ekspor',
+                                            text: error.message ||
+                                                'Terjadi kesalahan saat memulai proses ekspor.',
+                                            icon: 'error',
+                                        });
+                                    });
+                            });
+                        });
+                    }
+                });
+            </script>
         @endif
     @endpush
 </x-app-layout>
