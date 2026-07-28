@@ -1,5 +1,5 @@
 <x-guest-layout>
-    @php $pageTitle = 'Artikel'; @endphp
+    @php $pageTitle = 'Informasi Publik'; @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 
@@ -7,46 +7,43 @@
         <div class="row justify-content-center">
             <div class="col-lg-7 mb-5 text-center">
                 <p class="text-dark">
-                    Temukan informasi, publikasi, dan artikel terbaru dari
-                    {{ config('app.subname', 'Laravel') }} sebagai media informasi
+                    Akses informasi publik terbaru, pengumuman, berita, serta berbagai
+                    publikasi resmi dari {{ config('app.subname', 'Laravel') }} sebagai media informasi
                     dan edukasi bagi masyarakat.
                 </p>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <form action="{{ route('blog.index') }}" method="GET">
-                    <div class="input-group input-group-lg">
-                        <input type="search" name="search" class="form-control rounded-start"
-                            placeholder="Cari artikel..." value="{{ request('search') }}">
-                        <button class="btn btn-outline-secondary rounded-end" type="submit">
-                            <i class="fa fa-search me-2"></i> Cari
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         @if (isset($categories) && $categories->count())
-            <div class="row justify-content-center mt-4">
-                <div class="col-lg-10">
-                    <div class="d-flex justify-content-center flex-wrap" style="gap: .75rem">
-                        <a href="{{ route('blog.index') }}"
-                            class="btn {{ !request('category') ? 'btn-secondary' : 'btn-outline-secondary' }} rounded-pill">
-                            Semua Artikel
-                        </a>
-
-                        @foreach ($categories as $category)
-                            <a href="{{ route('blog.category', $category->slug) }}"
-                                class="btn btn-outline-secondary rounded-pill">
-                                {{ $category->name }}
-                                <span class="badge bg-light text-dark ms-1">
-                                    {{ $category->published_articles_count ?? 0 }}
-                                </span>
-                            </a>
-                        @endforeach
+            <div class="row justify-content-center g-4">
+                <div class="col-lg-4">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text">Kategori</span>
+                        <select id="category-filter" class="form-select form-select-lg select2-category"
+                            aria-label="Kategori" data-placeholder="Pilih kategori">
+                            <option value="{{ route('blog.index') }}" @selected(!request()->routeIs('blog.category'))>
+                                Semua Kategori
+                            </option>
+                            @foreach ($categories as $category)
+                                <option value="{{ route('blog.category', $category->slug) }}"
+                                    @selected(request()->route('slug') === $category->slug)>
+                                    {{ $category->name }} ({{ $category->published_articles_count }})
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <form action="{{ route('blog.index') }}" method="GET">
+                        <div class="input-group input-group-lg">
+                            <input type="search" name="search" class="form-control rounded-start"
+                                placeholder="Cari..." value="{{ request('search') }}">
+                            <button class="btn btn-outline-secondary rounded-end" type="submit">
+                                <i class="fa fa-search me-2"></i> Cari
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         @endif
@@ -102,7 +99,7 @@
                             <div class="mt-auto">
                                 <a href="{{ route('blog.show', $item->slug) }}"
                                     class="btn btn-outline-secondary rounded-pill">
-                                    Baca Artikel
+                                    Selengkapnya
                                     <i class="fa fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
@@ -128,6 +125,9 @@
     </section>
 
     @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
         <style>
             .card-title a:hover {
                 color: var(--bs-secondary) !important;
@@ -140,5 +140,28 @@
     @endpush
 
     @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/i18n/id.js"></script>
+        <script>
+            $(document).ready(function() {
+                const $categorySelect = $('#category-filter');
+
+                $categorySelect.select2({
+                    theme: 'bootstrap-5',
+                    language: 'id',
+                    width: 'style',
+                    placeholder: $categorySelect.data('placeholder'),
+                    minimumResultsForSearch: 0
+                });
+
+                $categorySelect.on('change', function() {
+                    const destination = $(this).val();
+
+                    if (destination) {
+                        window.location.href = destination;
+                    }
+                });
+            });
+        </script>
     @endpush
 </x-guest-layout>

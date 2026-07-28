@@ -58,7 +58,7 @@ return new class extends Migration {
             $table->string('document_type')->nullable()->comment('Jenis Dokumen');
             $table->string('transaction_type')->nullable()->comment('Jenis Transaksi');
             $table->string('dpt_number')->nullable()->comment('Nomor DPT');
-            $table->date('document_date')->nullable()->comment('Tanggal Dokumen');
+            $table->string('document_date')->nullable()->comment('Tanggal Dokumen'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
             $table->text('document_description')->nullable()->comment('Keterangan Dokumen');
 
             $table->decimal('realization_value', 18, 2)->default(0)->comment('Nilai Realisasi');
@@ -68,7 +68,7 @@ return new class extends Migration {
             $table->string('nip', 50)->nullable()->comment('NIP');
             $table->string('personnel_name', 150)->nullable()->comment('Nama Pegawai');
 
-            $table->date('saved_date')->nullable()->comment('Tanggal Simpan');
+            $table->string('saved_date')->nullable()->comment('Tanggal Simpan'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
 
             // SPD
             $table->string('spd_number')->nullable()->comment('Nomor SPD');
@@ -80,16 +80,16 @@ return new class extends Migration {
 
             // SPP
             $table->string('spp_number')->nullable()->comment('Nomor SPP');
-            $table->date('spp_date')->nullable()->comment('Tanggal SPP');
+            $table->string('spp_date')->nullable()->comment('Tanggal SPP'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
 
             // SPM
             $table->string('spm_number')->nullable()->comment('Nomor SPM');
-            $table->date('spm_date')->nullable()->comment('Tanggal SPM');
+            $table->string('spm_date')->nullable()->comment('Tanggal SPM'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
 
             // SP2D
             $table->string('sp2d_number')->nullable()->comment('Nomor SP2D');
-            $table->date('sp2d_date')->nullable()->comment('Tanggal SP2D');
-            $table->date('transfer_date')->nullable()->comment('Tanggal Transfer');
+            $table->string('sp2d_date')->nullable()->comment('Tanggal SP2D'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
+            $table->string('transfer_date')->nullable()->comment('Tanggal Transfer'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
             $table->decimal('sp2d_value', 18, 2)->default(0)->comment('Nilai SP2D');
 
             // Audit Trail

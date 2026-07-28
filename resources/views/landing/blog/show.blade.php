@@ -1,7 +1,16 @@
 <x-guest-layout>
     @php
         $defaultThumbnail = asset('assets/images/placeholder.svg');
-        $currentThumbnail = $article->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $article->thumbnail))) : $defaultThumbnail;
+        $currentThumbnail = $article->thumbnail
+            ? asset(
+                'storage/' .
+                    \Illuminate\Support\Str::replaceStart(
+                        'storage/',
+                        '',
+                        \Illuminate\Support\Str::replaceStart('uploads/', '', $article->thumbnail),
+                    ),
+            )
+            : $defaultThumbnail;
 
         $plainMetaSource = trim(preg_replace('/\s+/', ' ', strip_tags($article->excerpt ?: $article->content)));
 
@@ -145,9 +154,9 @@
                     <div class="related-posts">
                         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 1rem">
                             <div>
-                                <h3 class="fw-bold mb-1">Artikel Terkait</h3>
+                                <h3 class="fw-bold mb-1">Informasi Terkait</h3>
                                 <p class="text-secondary mb-0">
-                                    Artikel lain yang relevan berdasarkan kategori yang sama.
+                                    Informasi lain yang relevan berdasarkan kategori yang sama.
                                 </p>
                             </div>
                         </div>
@@ -178,7 +187,7 @@
                                             <div class="mt-auto">
                                                 <a href="{{ route('blog.show', $item->slug) }}"
                                                     class="small text-secondary text-decoration-none">
-                                                    Baca Artikel
+                                                    Selengkapnya
                                                     <i class="fa fa-arrow-right ms-1"></i>
                                                 </a>
                                             </div>
@@ -202,7 +211,7 @@
                             <div class="text-center mt-4">
                                 <a href="{{ route('blog.category', $article->category->slug) }}"
                                     class="btn btn-outline-secondary rounded-pill">
-                                    Lihat Lebih Banyak Artikel Relevan
+                                    Lihat Lebih Banyak Informasi Relevan
                                     <i class="fa fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
@@ -216,11 +225,11 @@
                 <aside class="blog-sidebar">
                     {{-- Search --}}
                     <div class="sidebar-widget bg-light rounded border-0 p-4 shadow-sm mb-4">
-                        <h5 class="fw-bold mb-3">Cari Artikel</h5>
+                        <h5 class="fw-bold mb-3">Cari Informasi</h5>
 
                         <form action="{{ route('blog.index') }}" method="GET">
                             <div class="input-group">
-                                <input type="search" name="search" class="form-control" placeholder="Cari artikel..."
+                                <input type="search" name="search" class="form-control" placeholder="Cari..."
                                     value="{{ request('search') }}">
                                 <button class="btn btn-outline-secondary" type="submit">
                                     <i class="fa fa-search"></i>
@@ -231,7 +240,7 @@
 
                     {{-- Featured Posts --}}
                     <div class="sidebar-widget bg-light rounded border-0 p-4 shadow-sm mb-4">
-                        <h5 class="fw-bold mb-3">Artikel Unggulan</h5>
+                        <h5 class="fw-bold mb-3">Informasi Unggulan</h5>
 
                         @forelse ($featuredArticles as $item)
                             <div class="d-flex mb-3 pb-3 border-bottom">
@@ -263,7 +272,7 @@
 
                     {{-- Categories --}}
                     <div class="sidebar-widget bg-light rounded border-0 p-4 shadow-sm">
-                        <h5 class="fw-bold mb-3">Kategori Artikel</h5>
+                        <h5 class="fw-bold mb-3">Kategori</h5>
 
                         <div class="list-group list-group-flush">
                             @forelse ($categories as $category)

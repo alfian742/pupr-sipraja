@@ -32,6 +32,7 @@ class RegionalPerformanceIndicatorRequest extends FormRequest
             'target_value'        => 'required|numeric',
             'achievement_value'   => 'nullable|numeric',
             'performance_value'   => 'nullable|numeric',
+            'period'               => 'required|string|max:255',
             'document_url'        => 'nullable|url',
         ];
     }
@@ -82,6 +83,11 @@ class RegionalPerformanceIndicatorRequest extends FormRequest
 
             // performance value
             'performance_value.numeric' => 'Nilai kinerja harus berupa angka.',
+
+            // periode
+            'period.required' => 'Periode wajib diisi.',
+            'period.string'   => 'Periode harus berupa teks.',
+            'period.max'      => 'Periode maksimal 255 karakter.',
 
             // document url
             'document_url.url' => 'Link dokumen tidak valid.',

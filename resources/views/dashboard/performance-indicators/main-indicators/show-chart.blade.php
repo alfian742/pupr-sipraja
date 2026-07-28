@@ -1,5 +1,5 @@
 <x-app-layout>
-    @php $pageTitle = 'Grafik' @endphp
+    @php $pageTitle = 'Grafik Indikator Kinerja Utama' @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 
@@ -39,16 +39,19 @@
                                     </div>
                                 </div>
 
-                                <div>
+                                <div id="main-indicator-header" class="d-none">
                                     <h5 class="font-weight-bold mb-1" id="main-indicator-title">
                                         Indikator
                                     </h5>
-                                    <h6 class="mb-0" id="main-indicator-unit">Satuan: -</h6>
+
+                                    <h6 class="mb-0" id="main-indicator-unit">
+                                        Satuan: -
+                                    </h6>
                                 </div>
 
-                                <div id="main-indicator-chart-wrapper">
-                                    <div style="height: 300px;">
-                                        <canvas id="main-indicator-chart" class="h-100"></canvas>
+                                <div id="main-indicator-chart-wrapper" class="mt-2">
+                                    <div class="alert alert-info text-center mb-0">
+                                        Silakan pilih nama indikator untuk menampilkan grafik.
                                     </div>
                                 </div>
                             </div>
@@ -70,19 +73,45 @@
                 chartUrl: "{{ $routeList->chart }}"
             };
 
-            let regionalChartInstance = null;
+            let mainIndicatorChartInstances = [];
 
-            function ensureWrapperRelative() {
-                const wrapper = document.getElementById('main-indicator-chart-wrapper');
-                if (!wrapper) return null;
-                if (getComputedStyle(wrapper).position === 'static') wrapper.style.position = 'relative';
+            function getChartWrapper() {
+                const wrapper = document.getElementById(
+                    'main-indicator-chart-wrapper'
+                );
+
+                if (!wrapper) {
+                    return null;
+                }
+
+                if (getComputedStyle(wrapper).position === 'static') {
+                    wrapper.style.position = 'relative';
+                }
+
                 return wrapper;
             }
 
+            function destroyChartInstances() {
+                mainIndicatorChartInstances.forEach(function(chart) {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                });
+
+                mainIndicatorChartInstances = [];
+            }
+
             function showLoader(wrapper) {
+                removeLoader(wrapper);
+
                 const loader = document.createElement('div');
+
                 loader.setAttribute('data-loader', '1');
-                loader.innerHTML = `<span class="ft-refresh-cw icon-spin"></span>&nbsp; Memuat data...`;
+
+                loader.innerHTML = `
+            <span class="ft-refresh-cw icon-spin"></span>
+            <span>Memuat data...</span>
+        `;
 
                 Object.assign(loader.style, {
                     position: 'absolute',
@@ -107,139 +136,366 @@
                 });
 
                 wrapper.appendChild(loader);
+
                 return loader;
             }
 
             function removeLoader(wrapper) {
-                const existing = wrapper.querySelector('[data-loader="1"]');
-                if (existing) existing.remove();
-            }
-
-            function updateHeader(data) {
-                document.getElementById('main-indicator-title').innerText = data?.title ?? 'Indikator';
-                document.getElementById('main-indicator-unit').innerText = `Satuan: ${data?.unit ?? '-'}`;
-            }
-
-            function renderOrUpdateChart(data) {
-                const canvas = document.getElementById('main-indicator-chart');
-                if (!canvas) return;
-
-                const ctx = canvas.getContext('2d');
-
-                if (regionalChartInstance) {
-                    regionalChartInstance.destroy();
-                    regionalChartInstance = null;
+                if (!wrapper) {
+                    return;
                 }
 
-                const colorTarget = "rgba(85, 89, 92, 0.7)";
-                const colorAchievement = "rgba(55, 188, 155, 0.7)";
-                const colorPerformance = "rgba(59, 175, 218, 0.7)";
+                const loader = wrapper.querySelector('[data-loader="1"]');
 
-                regionalChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.labels ?? [],
-                        datasets: [{
-                                label: "Target",
-                                data: data.target ?? [],
-                                backgroundColor: colorTarget,
-                                borderColor: colorTarget,
-                                borderWidth: 1
-                            },
-                            {
-                                label: "Capaian",
-                                data: data.achievement ?? [],
-                                backgroundColor: colorAchievement,
-                                borderColor: colorAchievement,
-                                borderWidth: 1
-                            },
-                            {
-                                label: "Kinerja",
-                                data: data.performance ?? [],
-                                backgroundColor: colorPerformance,
-                                borderColor: colorPerformance,
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            xAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Tahun'
-                                },
-                                ticks: {
-                                    fontSize: 12
-                                },
-                                gridLines: {
-                                    display: false
-                                }
-                            }],
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    fontSize: 12
-                                },
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Nilai'
-                                }
-                            }]
-                        }
+                if (loader) {
+                    loader.remove();
+                }
+            }
+
+            function updateHeader(data = null) {
+                const headerElement = document.getElementById(
+                    'main-indicator-header'
+                );
+
+                const titleElement = document.getElementById(
+                    'main-indicator-title'
+                );
+
+                const unitElement = document.getElementById(
+                    'main-indicator-unit'
+                );
+
+                if (!headerElement) {
+                    return;
+                }
+
+                if (!data) {
+                    headerElement.classList.add('d-none');
+
+                    if (titleElement) {
+                        titleElement.textContent = 'Indikator';
                     }
+
+                    if (unitElement) {
+                        unitElement.textContent = 'Satuan: -';
+                    }
+
+                    return;
+                }
+
+                if (titleElement) {
+                    titleElement.textContent =
+                        data.title || 'Indikator';
+                }
+
+                if (unitElement) {
+                    unitElement.textContent =
+                        `Satuan: ${data.unit || '-'}`;
+                }
+
+                headerElement.classList.remove('d-none');
+            }
+
+            function showChartMessage(message, type = 'info') {
+                const wrapper = getChartWrapper();
+
+                if (!wrapper) {
+                    return;
+                }
+
+                destroyChartInstances();
+
+                wrapper.innerHTML = '';
+
+                const alert = document.createElement('div');
+
+                alert.className = `alert alert-${type} text-center mb-0`;
+                alert.textContent = message;
+
+                wrapper.appendChild(alert);
+            }
+
+            function formatNumber(value) {
+                if (
+                    value === null ||
+                    value === undefined ||
+                    value === ''
+                ) {
+                    return '-';
+                }
+
+                const number = Number(value);
+
+                if (Number.isNaN(number)) {
+                    return value;
+                }
+
+                return number.toLocaleString('id-ID', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            function renderCharts(data) {
+                const wrapper = getChartWrapper();
+
+                if (!wrapper) {
+                    return;
+                }
+
+                destroyChartInstances();
+                wrapper.innerHTML = '';
+
+                const charts = Array.isArray(data?.charts) ?
+                    data.charts : [];
+
+                if (charts.length === 0) {
+                    showChartMessage(
+                        'Data grafik untuk indikator tersebut tidak ditemukan.',
+                        'warning'
+                    );
+
+                    return;
+                }
+
+                const colorTarget = 'rgba(85, 89, 92, 0.7)';
+                const colorAchievement = 'rgba(55, 188, 155, 0.7)';
+                const colorPerformance = 'rgba(59, 175, 218, 0.7)';
+
+                charts.forEach(function(chartData) {
+                    const card = document.createElement('div');
+
+                    card.className = 'card border mb-3';
+
+                    const cardHeader = document.createElement('div');
+
+                    cardHeader.className = 'card-header';
+
+                    const cardTitle = document.createElement('h4');
+
+                    cardTitle.className = 'font-weight-bold mb-0';
+                    cardTitle.textContent = `Tahun ${chartData.year}`;
+
+                    cardHeader.appendChild(cardTitle);
+
+                    const cardBody = document.createElement('div');
+
+                    cardBody.className = 'card-body';
+
+                    const canvasWrapper = document.createElement('div');
+
+                    canvasWrapper.style.position = 'relative';
+                    canvasWrapper.style.height = '350px';
+
+                    const canvas = document.createElement('canvas');
+
+                    canvasWrapper.appendChild(canvas);
+                    cardBody.appendChild(canvasWrapper);
+
+                    card.appendChild(cardHeader);
+                    card.appendChild(cardBody);
+
+                    wrapper.appendChild(card);
+
+                    const context = canvas.getContext('2d');
+
+                    const chartInstance = new Chart(context, {
+                        type: 'bar',
+
+                        data: {
+                            labels: chartData.labels || [],
+
+                            datasets: [{
+                                    label: 'Target',
+                                    data: chartData.target || [],
+                                    backgroundColor: colorTarget,
+                                    borderColor: colorTarget,
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Capaian',
+                                    data: chartData.achievement || [],
+                                    backgroundColor: colorAchievement,
+                                    borderColor: colorAchievement,
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Kinerja',
+                                    data: chartData.performance || [],
+                                    backgroundColor: colorPerformance,
+                                    borderColor: colorPerformance,
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItem, chart) {
+                                        const dataset =
+                                            chart.datasets[
+                                                tooltipItem.datasetIndex
+                                            ];
+
+                                        const value =
+                                            dataset.data[
+                                                tooltipItem.index
+                                            ];
+
+                                        const unit = data?.unit &&
+                                            data.unit !== '-' ?
+                                            ` ${data.unit}` :
+                                            '';
+
+                                        return `${dataset.label}: ${formatNumber(value)}${unit}`;
+                                    }
+                                }
+                            },
+
+                            scales: {
+                                xAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Periode'
+                                    },
+
+                                    ticks: {
+                                        fontSize: 12
+                                    },
+
+                                    gridLines: {
+                                        display: false
+                                    }
+                                }],
+
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        fontSize: 12,
+
+                                        callback: function(value) {
+                                            return formatNumber(value);
+                                        }
+                                    },
+
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: data?.unit &&
+                                            data.unit !== '-' ?
+                                            `Nilai (${data.unit})` : 'Nilai'
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    mainIndicatorChartInstances.push(chartInstance);
                 });
             }
 
             async function loadIndicatorChart(indicatorName) {
-                const wrapper = ensureWrapperRelative();
-                if (!wrapper) return;
+                const wrapper = getChartWrapper();
 
-                removeLoader(wrapper);
+                if (!wrapper) {
+                    return;
+                }
+
+                if (!indicatorName) {
+                    updateHeader();
+
+                    showChartMessage(
+                        'Silakan pilih nama indikator untuk menampilkan grafik.',
+                        'info'
+                    );
+
+                    return;
+                }
+
                 const loader = showLoader(wrapper);
 
                 try {
-                    const params = new URLSearchParams();
-
-                    if (indicatorName) {
-                        params.append('indicator_name', indicatorName);
-                    }
-
-                    const res = await fetch(`${MAIN_INDICATOR_CONFIG.chartUrl}?${params.toString()}`, {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
+                    const params = new URLSearchParams({
+                        indicator_name: indicatorName
                     });
 
-                    const json = await res.json();
+                    const response = await fetch(
+                        `${MAIN_INDICATOR_CONFIG.chartUrl}?${params.toString()}`, {
+                            method: 'GET',
 
-                    if (json.status === 'success') {
-                        updateHeader(json.data);
-                        renderOrUpdateChart(json.data);
-                    } else {
-                        console.error(json);
-                        alert('Gagal memuat data chart.');
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        }
+                    );
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            result.message ||
+                            'Gagal mengambil data grafik.'
+                        );
                     }
-                } catch (e) {
-                    console.error(e);
-                    alert('Gagal memuat data chart.');
+
+                    if (
+                        result.status !== 'success' ||
+                        !result.data
+                    ) {
+                        throw new Error(
+                            result.message ||
+                            'Respons data grafik tidak valid.'
+                        );
+                    }
+
+                    updateHeader(result.data);
+                    renderCharts(result.data);
+                } catch (error) {
+                    console.error(error);
+
+                    updateHeader();
+
+                    showChartMessage(
+                        error.message ||
+                        'Terjadi kesalahan saat memuat grafik.',
+                        'danger'
+                    );
                 } finally {
-                    setTimeout(() => {
-                        if (loader) loader.remove();
-                    }, 300);
+                    removeLoader(wrapper);
                 }
             }
 
             document.addEventListener('DOMContentLoaded', function() {
-                const nameSelect = document.getElementById('main-indicator-name-select');
+                const nameSelect = document.getElementById(
+                    'main-indicator-name-select'
+                );
 
-                if (nameSelect && nameSelect.options.length > 1) {
-                    nameSelect.selectedIndex = 1;
-                    loadIndicatorChart(nameSelect.value);
+                if (!nameSelect) {
+                    return;
+                }
+
+                nameSelect.value = '';
+
+                updateHeader();
+
+                if (nameSelect.options.length > 1) {
+                    showChartMessage(
+                        'Silakan pilih nama indikator untuk menampilkan grafik.',
+                        'info'
+                    );
                 } else {
-                    loadIndicatorChart('');
+                    showChartMessage(
+                        'Data nama indikator belum tersedia.',
+                        'warning'
+                    );
                 }
 
                 nameSelect.addEventListener('change', function() {

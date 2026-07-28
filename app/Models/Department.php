@@ -25,6 +25,8 @@ class Department extends Model
         'department_name',
         'slug',
         'description',
+        'sort_order',
+        'show_on_the_homepage',
         'logo',
         'modified_by',
     ];

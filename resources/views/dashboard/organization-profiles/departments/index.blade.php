@@ -48,9 +48,17 @@
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table-striped table-bordered table-custom table-align-middle table">
+                                    <table
+                                        class="table-striped table-bordered table-custom table-align-middle table table-hover">
                                         @php
-                                            $column = ['Logo', 'Nama Bidang', 'Deskripsi', 'Riwayat'];
+                                            $column = [
+                                                'Logo',
+                                                'Nama Bidang',
+                                                'Deskripsi',
+                                                'Urutan',
+                                                'Tampilkan di Beranda',
+                                                'Riwayat',
+                                            ];
                                         @endphp
 
                                         <thead>
@@ -116,6 +124,16 @@
                         {
                             data: 'description',
                             name: 'description',
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'sort_order',
+                            name: 'sort_order',
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'show_on_the_homepage',
+                            name: 'show_on_the_homepage',
                             defaultContent: '-'
                         },
                         {

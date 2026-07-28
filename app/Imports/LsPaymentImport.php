@@ -99,14 +99,7 @@ class LsPaymentImport implements
         'sp2d_value' => 'Nilai SP2D',
     ];
 
-    protected array $dateColumns = [
-        'document_date',
-        'saved_date',
-        'spp_date',
-        'spm_date',
-        'sp2d_date',
-        'transfer_date',
-    ];
+    protected array $dateColumns = []; // Tidak ada kolom tanggal yang perlu diubah menjadi format Y-m-d
 
     protected array $numericColumns = [
         'realization_value',
@@ -185,12 +178,12 @@ class LsPaymentImport implements
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 
     public function batchSize(): int
     {
-        return 500;
+        return 50;
     }
 
     private function normalizeKeys(array $row): array

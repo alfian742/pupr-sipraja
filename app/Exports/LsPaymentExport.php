@@ -78,14 +78,7 @@ class LsPaymentExport implements
         'sp2d_value',
     ];
 
-    private array $dateColumns = [
-        'document_date',
-        'saved_date',
-        'spp_date',
-        'spm_date',
-        'sp2d_date',
-        'transfer_date',
-    ];
+    private array $dateColumns = []; // Tidak ada kolom tanggal yang perlu diubah menjadi format Y-m-d
 
     private array $numericColumns = [
         'realization_value',
@@ -159,22 +152,30 @@ class LsPaymentExport implements
 
     public function query()
     {
-        $selectColumns = array_values(array_intersect($this->exportOrder, $this->columns));
+        $selectColumns = array_values(array_intersect(
+            $this->exportOrder,
+            $this->columns
+        ));
 
         $query = LsPayment::query()
             ->select($selectColumns)
             ->orderBy('created_at')
             ->orderBy('id');
 
-        if (!empty($this->startDate) && !empty($this->endDate)) {
-            $query->whereBetween('created_at', [
-                $this->startDate . ' 00:00:00',
-                $this->endDate . ' 23:59:59',
-            ]);
-        } elseif (!empty($this->startDate)) {
-            $query->where('created_at', '>=', $this->startDate . ' 00:00:00');
-        } elseif (!empty($this->endDate)) {
-            $query->where('created_at', '<=', $this->endDate . ' 23:59:59');
+        if (!empty($this->startDate)) {
+            $query->where(
+                'created_at',
+                '>=',
+                Carbon::parse($this->startDate)->startOfDay()
+            );
+        }
+
+        if (!empty($this->endDate)) {
+            $query->where(
+                'created_at',
+                '<',
+                Carbon::parse($this->endDate)->addDay()->startOfDay()
+            );
         }
 
         return $query;
@@ -265,7 +266,7 @@ class LsPaymentExport implements
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 
     private function columnLetterFromIndex(int $index): string

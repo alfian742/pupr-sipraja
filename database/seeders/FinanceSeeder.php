@@ -36,8 +36,8 @@ class FinanceSeeder extends Seeder
 
                 'third_party_name' => 'PT Rekanan ' . $i,
 
-                'activity_code' => '1.03.02.01.' . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'sub_account_code' => '5.2.01.01.' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'sub_activity_code' => '1.03.02.01.' . str_pad($i, 4, '0', STR_PAD_LEFT),
+                'account_code' => '5.2.01.01.' . str_pad($i, 4, '0', STR_PAD_LEFT),
 
                 'activity_description' => 'Pekerjaan Infrastruktur ' . $department,
                 'department' => $department,
@@ -61,7 +61,7 @@ class FinanceSeeder extends Seeder
             // sebagian dibuat tidak cocok
             $accountCode = ($i % 7 === 0)
                 ? '5.9.99.99.999'
-                : $contract->sub_account_code;
+                : $contract->account_code;
 
             $lsPayment = LsPayment::create([
 
@@ -141,8 +141,8 @@ class FinanceSeeder extends Seeder
             */
 
             $matchStatus = (
-                $contract->activity_code === $lsPayment->activity_code &&
-                $contract->sub_account_code === $lsPayment->account_code
+                $contract->sub_activity_code === $lsPayment->activity_code &&
+                $contract->account_code === $lsPayment->account_code
             ) ? 'SAMA' : 'BEDA';
 
             Realization::create([

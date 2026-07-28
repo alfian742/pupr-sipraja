@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Exports\RealizationExport;
 use App\Http\Requests\RealizationRequest;
+use App\Imports\RealizationImport;
 use App\Jobs\MarkRealizationExportReady;
+use App\Jobs\MarkRealizationImportReady;
 use App\Models\Contract;
 use App\Models\LsPayment;
 use App\Models\Realization;
@@ -28,20 +30,18 @@ class RealizationController extends Controller
                 ['field' => 'action', 'label' => 'Aksi', 'type' => 'special'],
                 ['field' => 'history', 'label' => 'Riwayat', 'type' => 'special'],
 
-                ['field' => 'verification_date', 'label' => 'Tanggal Verifikasi', 'type' => 'date'],
+                ['field' => 'verification_date', 'label' => 'Tanggal Verifikasi', 'type' => 'text'],
                 ['field' => 'verified_by', 'label' => 'Verifikasi Oleh', 'type' => 'text'],
 
-                // Dipanggil via contract_id
-                ['field' => 'contract_number', 'label' => 'Nomor Kontrak', 'type' => 'text'],
+                ['field' => 'realization_contract_number', 'label' => 'Nomor Kontrak', 'type' => 'text'],
                 ['field' => 'third_party_name', 'label' => 'Pihak III', 'type' => 'text'],
-                ['field' => 'activity_code', 'label' => 'Kode Kegiatan', 'type' => 'text'],
-                ['field' => 'sub_account_code', 'label' => 'Sub Rek', 'type' => 'text'],
+                ['field' => 'sub_activity_code', 'label' => 'Kode Sub Kegiatan', 'type' => 'text'],
+                ['field' => 'account_code', 'label' => 'Kode Rekening', 'type' => 'text'],
                 ['field' => 'activity_description', 'label' => 'Uraian Kegiatan', 'type' => 'text'],
                 ['field' => 'department', 'label' => 'Bidang', 'type' => 'text'],
 
-                // Dipanggil via ls_payment_id
-                ['field' => 'spm_number', 'label' => 'Nomor SPM', 'type' => 'text'],
-                ['field' => 'sp2d_date', 'label' => 'Tanggal SP2D', 'type' => 'date'],
+                ['field' => 'realization_spm_number', 'label' => 'Nomor SPM', 'type' => 'text'],
+                ['field' => 'sp2d_date', 'label' => 'Tanggal SP2D', 'type' => 'text'],
                 ['field' => 'sp2d_number', 'label' => 'Nomor SP2D', 'type' => 'text'],
                 ['field' => 'document_description', 'label' => 'Uraian Pekerjaan', 'type' => 'text'],
                 ['field' => 'sp2d_value', 'label' => 'Realisasi', 'type' => 'numeric'],
@@ -124,32 +124,37 @@ class RealizationController extends Controller
         */
 
         $datas = Realization::query()
+            ->leftJoin(
+                'contracts',
+                'contracts.id',
+                '=',
+                'realizations.contract_id'
+            )
+            ->leftJoin(
+                'ls_payments',
+                'ls_payments.id',
+                '=',
+                'realizations.ls_payment_id'
+            )
             ->select([
                 'realizations.*',
 
-                'contracts.contract_number',
-                'contracts.third_party_name',
-                'contracts.activity_code',
-                'contracts.sub_account_code',
-                'contracts.activity_description',
-                'contracts.department',
+                'contracts.third_party_name as third_party_name',
+                'contracts.sub_activity_code',
+                'contracts.account_code',
+                'contracts.activity_description as activity_description',
+                'contracts.department as department',
 
-                'ls_payments.spm_number',
-                'ls_payments.sp2d_date',
-                'ls_payments.sp2d_number',
-                'ls_payments.document_description',
-                'ls_payments.sp2d_value',
+                'ls_payments.sp2d_date as sp2d_date',
+                'ls_payments.sp2d_number as sp2d_number',
+                'ls_payments.document_description as document_description',
+                'ls_payments.sp2d_value as sp2d_value',
             ])
-
-            ->leftJoin('contracts', 'contracts.id', '=', 'realizations.contract_id')
-            ->leftJoin('ls_payments', 'ls_payments.id', '=', 'realizations.ls_payment_id')
-
             ->with([
                 'verifier:id,name',
                 'creator:id,name',
                 'updater:id,name',
             ])
-
             ->orderByDesc('realizations.created_at');
 
         $dataTable = DataTables::of($datas);
@@ -412,8 +417,8 @@ class RealizationController extends Controller
             $selectedContract = Contract::select(
                 'id',
                 'contract_number',
-                'sub_account_code',
-                'activity_code',
+                'account_code',
+                'sub_activity_code',
                 'activity_description'
             )->find(old('contract_id'));
         }
@@ -477,8 +482,8 @@ class RealizationController extends Controller
             $selectedContract = Contract::select(
                 'id',
                 'contract_number',
-                'sub_account_code',
-                'activity_code',
+                'account_code',
+                'sub_activity_code',
                 'activity_description'
             )->find($selectedContractId);
         }
@@ -576,9 +581,14 @@ class RealizationController extends Controller
 
         try {
 
+            // Realization::whereIn('id', $ids)->update([
+            //     'verification_date' => now(),
+            //     'verified_by'   => Auth::id(),
+            // ]);
+
             Realization::whereIn('id', $ids)->update([
-                'verification_date' => now(),
-                'verified_by'   => Auth::id(),
+                'verification_date' => Carbon::now()->locale(app()->getLocale())->translatedFormat('d F Y'),
+                'verified_by' => Auth::id(),
             ]);
 
             DB::commit();
@@ -634,7 +644,7 @@ class RealizationController extends Controller
             ]);
 
         return response()->json([
-            'message' => 'Export sedang diproses.',
+            'message' => 'Ekspor sedang diproses.',
             'token' => $token,
         ]);
     }
@@ -678,5 +688,436 @@ class RealizationController extends Controller
                 $data['filename']
             )
             ->deleteFileAfterSend(true);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate(
+            [
+                'file' => ['required', 'file', 'max:10240'],
+            ],
+            [
+                'file.required' => 'Berkas wajib diunggah.',
+                'file.file' => 'Berkas yang diunggah tidak valid.',
+                'file.max' => 'Ukuran berkas terlalu besar. Maksimum 10 MB.',
+            ]
+        );
+
+        try {
+            $file = $request->file('file');
+
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            if (!in_array($extension, ['xlsx', 'csv'], true)) {
+                return response()->json([
+                    'message' => 'Format berkas tidak valid. Harap unggah berkas dengan format .xlsx atau .csv.',
+                ], 422);
+            }
+
+            $userId = Auth::id();
+
+            $token = (string) Str::uuid();
+            $originalFilename = $file->getClientOriginalName();
+
+            $storedFilename = now()->format('Ymd_His')
+                . '_'
+                . Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME))
+                . '.'
+                . $extension;
+
+            $path = $file->storeAs(
+                "imports/realizations/{$token}",
+                $storedFilename,
+                'local'
+            );
+
+            Cache::put("import_realizations_{$token}", [
+                'status' => 'processing',
+                'filename' => $originalFilename,
+            ], now()->addHours(2));
+
+            $readerType = $extension === 'csv'
+                ? ExcelFormat::CSV
+                : ExcelFormat::XLSX;
+
+            (new RealizationImport($userId))
+                ->queue($path, 'local', $readerType)
+                ->allOnQueue('imports')
+                ->chain([
+                    new MarkRealizationImportReady($token, $originalFilename, $path),
+                ]);
+
+            return response()->json([
+                'message' => 'Impor sedang diproses.',
+                'token' => $token,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Gagal memulai proses impor realisasi.', [
+                'error' => $e->getMessage(),
+                'file' => $request->file('file')?->getClientOriginalName(),
+            ]);
+
+            return response()->json([
+                'message' => 'Gagal memulai proses impor. Pastikan format dan struktur berkas sesuai templat yang ditetapkan.',
+            ], 500);
+        }
+    }
+
+    public function checkImport(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+        ]);
+
+        $data = Cache::get("import_realizations_{$validated['token']}");
+
+        if (!$data) {
+            return response()->json([
+                'ready' => false,
+                'status' => 'not_found',
+            ]);
+        }
+
+        return response()->json([
+            'ready' => $data['status'] === 'ready',
+            'status' => $data['status'],
+            'filename' => $data['filename'] ?? null,
+        ]);
+    }
+
+    public function downloadTemplate()
+    {
+        /**
+         * Pastikan sudah menambahkan disk 'templates' di config/filesystems.php:
+         * 
+         * 'templates' => [
+         *     'driver' => 'local',
+         *     'root' => storage_path('app/templates'),
+         * ],
+         * 
+         * Jalankan perintah berikut setelah menambahkan konfigurasi:
+         * php artisan config:clear
+         * 
+         * File yang akan diunduh harus berada di:
+         * storage/app/templates/documents/{filename}
+         */
+
+        $filename = 'TEMPLAT_REALISASI_DPUPR.xlsx'; // Nama file
+
+        $path = Storage::disk('templates')->path('documents/' . $filename);
+
+        // Jika file tidak ditemukan, tampilkan error 404
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        // Unduh file dengan nama aslinya
+        return response()->download($path, $filename);
+    }
+
+
+    // ======================================================
+    // RESOLVE REFERENCE NUMBERS
+    // ======================================================
+
+    private function normalizeReferenceNumber($value): string
+    {
+        return mb_strtoupper(
+            preg_replace('/\s+/u', '', trim((string) $value))
+        );
+    }
+
+    public function massResolveReference(Request $request)
+    {
+        $validated = $request->validate(
+            [
+                'ids' => ['required', 'array', 'min:1'],
+                'ids.*' => ['required', 'integer', 'exists:realizations,id'],
+            ],
+            [
+                'ids.required' => 'Tidak ada data yang dipilih.',
+                'ids.array' => 'Data yang dipilih tidak valid.',
+                'ids.min' => 'Silakan pilih minimal satu data.',
+                'ids.*.exists' => 'Salah satu data Realisasi tidak ditemukan.',
+            ]
+        );
+
+        DB::beginTransaction();
+
+        try {
+            /*
+        |--------------------------------------------------------------------------
+        | AMBIL REALISASI YANG DIPILIH
+        |--------------------------------------------------------------------------
+        */
+
+            $realizations = Realization::query()
+                ->whereIn('id', $validated['ids'])
+                ->lockForUpdate()
+                ->get([
+                    'id',
+                    'contract_id',
+                    'ls_payment_id',
+                    'realization_contract_number',
+                    'realization_spm_number',
+                ]);
+
+            /*
+        |--------------------------------------------------------------------------
+        | KUMPULKAN NOMOR KONTRAK
+        |--------------------------------------------------------------------------
+        */
+
+            $contractNumbers = $realizations
+                ->pluck('realization_contract_number')
+                ->map(fn($value) => $this->normalizeReferenceNumber($value))
+                ->filter()
+                ->unique()
+                ->values();
+
+            /*
+        |--------------------------------------------------------------------------
+        | KUMPULKAN NOMOR SPM
+        |--------------------------------------------------------------------------
+        */
+
+            $spmNumbers = $realizations
+                ->pluck('realization_spm_number')
+                ->map(fn($value) => $this->normalizeReferenceNumber($value))
+                ->filter()
+                ->unique()
+                ->values();
+
+            /*
+        |--------------------------------------------------------------------------
+        | AMBIL DATA KONTRAK
+        |--------------------------------------------------------------------------
+        */
+
+            $contracts = collect();
+
+            if ($contractNumbers->isNotEmpty()) {
+                $contracts = Contract::query()
+                    ->select([
+                        'id',
+                        'contract_number',
+                        'account_code',
+                        'sub_activity_code',
+                    ])
+                    ->where(function ($query) use ($contractNumbers) {
+                        foreach ($contractNumbers as $contractNumber) {
+                            $query->orWhereRaw(
+                                "UPPER(REPLACE(TRIM(contract_number), ' ', '')) = ?",
+                                [$contractNumber]
+                            );
+                        }
+                    })
+                    ->get()
+                    ->groupBy(function ($contract) {
+                        return $this->normalizeReferenceNumber(
+                            $contract->contract_number
+                        );
+                    });
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | AMBIL DATA LS PAYMENT
+        |--------------------------------------------------------------------------
+        */
+
+            $lsPayments = collect();
+
+            if ($spmNumbers->isNotEmpty()) {
+                $lsPayments = LsPayment::query()
+                    ->select([
+                        'id',
+                        'spm_number',
+                        'account_code',
+                        'sub_activity_code',
+                    ])
+                    ->where(function ($query) use ($spmNumbers) {
+                        foreach ($spmNumbers as $spmNumber) {
+                            $query->orWhereRaw(
+                                "UPPER(REPLACE(TRIM(spm_number), ' ', '')) = ?",
+                                [$spmNumber]
+                            );
+                        }
+                    })
+                    ->get()
+                    ->groupBy(function ($lsPayment) {
+                        return $this->normalizeReferenceNumber(
+                            $lsPayment->spm_number
+                        );
+                    });
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | PROSES PEMETAAN
+        |--------------------------------------------------------------------------
+        */
+
+            $updatedCount = 0;
+            $notFoundCount = 0;
+            $ambiguousCount = 0;
+            $duplicateCount = 0;
+
+            foreach ($realizations as $realization) {
+                $contractKey = $this->normalizeReferenceNumber(
+                    $realization->realization_contract_number
+                );
+
+                $spmKey = $this->normalizeReferenceNumber(
+                    $realization->realization_spm_number
+                );
+
+                $contractCandidates = $contractKey !== ''
+                    ? $contracts->get($contractKey, collect())
+                    : collect();
+
+                $lsPaymentCandidates = $spmKey !== ''
+                    ? $lsPayments->get($spmKey, collect())
+                    : collect();
+
+                /*
+            |--------------------------------------------------------------------------
+            | NOMOR DUPLIKAT PADA MASTER DATA
+            |--------------------------------------------------------------------------
+            | Jika satu nomor kontrak atau satu nomor SPM ditemukan lebih dari sekali,
+            | sistem tidak boleh memilih ID secara sembarang.
+            |--------------------------------------------------------------------------
+            */
+
+                if (
+                    $contractCandidates->count() > 1 ||
+                    $lsPaymentCandidates->count() > 1
+                ) {
+                    $ambiguousCount++;
+                    continue;
+                }
+
+                $contract = $contractCandidates->first();
+                $lsPayment = $lsPaymentCandidates->first();
+
+                /*
+            |--------------------------------------------------------------------------
+            | KONTRAK ATAU LS TIDAK DITEMUKAN
+            |--------------------------------------------------------------------------
+            */
+
+                if (!$contract || !$lsPayment) {
+                    $notFoundCount++;
+                    continue;
+                }
+
+                /*
+            |--------------------------------------------------------------------------
+            | CEGAH PASANGAN RELASI DUPLIKAT
+            |--------------------------------------------------------------------------
+            */
+
+                $pairAlreadyExists = Realization::query()
+                    ->where('id', '!=', $realization->id)
+                    ->where('contract_id', $contract->id)
+                    ->where('ls_payment_id', $lsPayment->id)
+                    ->exists();
+
+                if ($pairAlreadyExists) {
+                    $duplicateCount++;
+                    continue;
+                }
+
+                /*
+            |--------------------------------------------------------------------------
+            | HITUNG STATUS KECOCOKAN
+            |--------------------------------------------------------------------------
+            */
+
+                $contractAccountCode = $this->normalizeReferenceNumber(
+                    $contract->account_code
+                );
+
+                $lsAccountCode = $this->normalizeReferenceNumber(
+                    $lsPayment->account_code
+                );
+
+                $contractSubActivityCode = $this->normalizeReferenceNumber(
+                    $contract->sub_activity_code
+                );
+
+                $lsSubActivityCode = $this->normalizeReferenceNumber(
+                    $lsPayment->sub_activity_code
+                );
+
+                $accountCodeMatch =
+                    $contractAccountCode !== '' &&
+                    $contractAccountCode === $lsAccountCode;
+
+                $subActivityCodeMatch =
+                    $contractSubActivityCode !== '' &&
+                    $contractSubActivityCode === $lsSubActivityCode;
+
+                $matchStatus =
+                    $accountCodeMatch && $subActivityCodeMatch
+                    ? 'SAMA'
+                    : 'BEDA';
+
+                /*
+            |--------------------------------------------------------------------------
+            | SIMPAN ID HASIL PENCARIAN
+            |--------------------------------------------------------------------------
+            */
+
+                $realization->update([
+                    'contract_id' => $contract->id,
+                    'ls_payment_id' => $lsPayment->id,
+                    'match_status' => $matchStatus,
+                    'updated_by' => Auth::id(),
+                ]);
+
+                $updatedCount++;
+            }
+
+            DB::commit();
+
+            $messages = [
+                "{$updatedCount} data berhasil dihubungkan.",
+            ];
+
+            if ($notFoundCount > 0) {
+                $messages[] =
+                    "{$notFoundCount} data tidak menemukan nomor kontrak atau nomor SPM.";
+            }
+
+            if ($ambiguousCount > 0) {
+                $messages[] =
+                    "{$ambiguousCount} data memiliki nomor master yang duplikat.";
+            }
+
+            if ($duplicateCount > 0) {
+                $messages[] =
+                    "{$duplicateCount} data dilewati karena pasangan relasi sudah digunakan.";
+            }
+
+            return redirect()
+                ->route('dashboard.monev.finances.realizations.index')
+                ->with('success', implode(' ', $messages));
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error('Gagal menghubungkan data Realisasi.', [
+                'ids' => $validated['ids'],
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Terjadi kesalahan, data Realisasi gagal dihubungkan.'
+                );
+        }
     }
 }

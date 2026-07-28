@@ -23,8 +23,9 @@ Route::middleware(['visitor'])->group(function () {
         });
     });
 
-    Route::prefix('blog')->name('blog.')->group(function () {
+    Route::prefix('public-information')->name('blog.')->group(function () {
         Route::get('/', [HomeController::class, 'blogIndex'])->name('index');
+        Route::get('/category', [HomeController::class, 'blogCategoryIndex'])->name('category.index');
         Route::get('/category/{slug}', [HomeController::class, 'blogCategory'])->name('category');
         Route::get('/{slug}', [HomeController::class, 'blogShow'])->name('show');
     });

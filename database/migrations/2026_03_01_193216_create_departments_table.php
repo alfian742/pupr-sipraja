@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('department_name')->unique()->comment('Nama Bidang');
             $table->string('slug')->comment('Slug untuk URL');
             $table->string('description')->comment('Deskripsi Bidang');
+            $table->integer('sort_order')->default(0)->comment('Urutan Bidang');
+            $table->boolean('show_on_the_homepage')->default(false)->comment('Tampilkan Bidang di Beranda');
             $table->string('logo')->nullable()->comment('Path URL Logo Bidang');
             $table->foreignId('modified_by')->nullable()->constrained('users')->nullOnDelete()->comment('User yang terakhir mengubah data');
             $table->timestamps();

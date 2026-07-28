@@ -201,7 +201,7 @@
 
                 {{-- <li class="nav-item">
                     <a href="{{ route('dashboard.development') . '?page=' . urlencode('Indikator Program') }}">
-                        <i class="icon-layers"></i>
+                        <i class="icon-trophy"></i>
                         <span class="menu-title">Indikator Program</span>
                     </a>
                 </li> --}}
@@ -244,7 +244,7 @@
                 <li class="nav-item">
                     <a href="#">
                         <i class="icon-notebook"></i>
-                        <span class="menu-title">Blog</span>
+                        <span class="menu-title">Informasi Publik</span>
                     </a>
                     <ul class="menu-content">
                         <li class="@if (request()->routeIs('dashboard.blog.categories.*')) active @endif">

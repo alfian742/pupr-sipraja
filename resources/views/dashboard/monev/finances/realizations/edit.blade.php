@@ -52,21 +52,20 @@
                                                                 @if ($selectedContract)
                                                                     <option value="{{ $selectedContract->id }}" selected
                                                                         data-contract-number="{{ $selectedContract->contract_number }}"
-                                                                        data-sub-account-code="{{ $selectedContract->sub_account_code }}"
-                                                                        data-activity-code="{{ $selectedContract->activity_code }}"
+                                                                        data-account-code="{{ $selectedContract->account_code }}"
+                                                                        data-sub-activity-code="{{ $selectedContract->sub_activity_code }}"
                                                                         data-activity-description="{{ $selectedContract->activity_description }}">
                                                                         {{ $selectedContract->contract_number }} |
-                                                                        {{ $selectedContract->sub_account_code }} |
-                                                                        {{ $selectedContract->activity_code }} |
+                                                                        {{ $selectedContract->account_code }} |
+                                                                        {{ $selectedContract->sub_activity_code }} |
                                                                         {{ $selectedContract->activity_description }}
                                                                     </option>
                                                                 @endif
                                                             </select>
 
                                                             <small class="font-italic"><span
-                                                                    class="text-danger">*</span> Nomor Kontrak | Sub
-                                                                Rek
-                                                                | Kode Kegiatan | Uraian Kegiatan.</small>
+                                                                    class="text-danger">*</span> Nomor Kontrak | Kode
+                                                                Rekening | Kode Sub Kegiatan | Uraian Kegiatan.</small>
                                                             @error('contract_id')
                                                                 <div class="invalid-feedback d-block">
                                                                     {{ $message }}
@@ -85,13 +84,23 @@
                                                                 name="contract_number" class="form-control"
                                                                 value="" disabled
                                                                 placeholder="Contoh: 03/PPK-CS/DPUPR/2025">
+
+                                                            <input type="hidden" name="realization_contract_number"
+                                                                id="realization_contract_number"
+                                                                value="{{ old('realization_contract_number', $selectedContract ? $selectedContract->contract_number : '') }}">
+
+                                                            @error('realization_contract_number')
+                                                                <div class="invalid-feedback d-block">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="form-group">
-                                                            <label for="sub_account_code">Sub Rek</label>
-                                                            <input type="text" id="sub_account_code"
-                                                                name="sub_account_code" class="form-control"
+                                                            <label for="contract_account_code">Kode Rekening</label>
+                                                            <input type="text" id="contract_account_code"
+                                                                name="contract_account_code" class="form-control"
                                                                 value="" disabled
                                                                 placeholder="Contoh: 5.1.02.02.01.0030">
                                                             <small class="font-weight-bold">Digunakan untuk pencocokan
@@ -100,9 +109,10 @@
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="form-group">
-                                                            <label for="contract_activity_code">Kode Kegiatan</label>
-                                                            <input type="text" id="contract_activity_code"
-                                                                name="contract_activity_code" class="form-control"
+                                                            <label for="contract_sub_activity_code">Kode Sub
+                                                                Kegiatan</label>
+                                                            <input type="text" id="contract_sub_activity_code"
+                                                                name="contract_sub_activity_code" class="form-control"
                                                                 value="" disabled
                                                                 placeholder="Contoh: 1.03.08.2.01">
                                                             <small class="font-weight-bold">Digunakan untuk pencocokan
@@ -178,12 +188,22 @@
                                                                 class="form-control" value="" disabled
                                                                 placeholder="Contoh: 52.02/03.0/000008/LS/1.03.0.00.0.00.01.0000/M/2/2025">
                                                         </div>
+
+                                                        <input type="hidden" name="realization_spm_number"
+                                                            id="realization_spm_number"
+                                                            value="{{ old('realization_spm_number', $selectedLsPayment ? $selectedLsPayment->spm_number : '') }}">
+
+                                                        @error('realization_spm_number')
+                                                            <div class="invalid-feedback d-block">
+                                                                {{ $message }}
+                                                            </div>
+                                                        @enderror
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="form-group">
-                                                            <label for="account_code">Kode Rekening</label>
-                                                            <input type="text" id="account_code"
-                                                                name="account_code" class="form-control"
+                                                            <label for="ls_payment_account_code">Kode Rekening</label>
+                                                            <input type="text" id="ls_payment_account_code"
+                                                                name="ls_payment_account_code" class="form-control"
                                                                 value="" disabled
                                                                 placeholder="Contoh: 5.1.02.02.01.0030">
                                                             <small class="font-weight-bold">Digunakan untuk pencocokan
@@ -272,7 +292,7 @@
                 // =========================
                 // INIT SELECT2
                 // =========================
-                $('.select2').select2({
+                $('.select2').not('#contract_id, #ls_payment_id').select2({
                     width: '100%',
                 });
 
@@ -292,7 +312,7 @@
                 // PREVIEW LS PAYMENT
                 // =========================
                 const $spmNumber = $('#spm_number');
-                const $accountCode = $('#account_code');
+                const $lsPaymentAccountCode = $('#ls_payment_account_code');
                 const $lsPaymentSubActivityCode = $('#ls_payment_sub_activity_code');
                 const $documentDescription = $('#document_description');
 
@@ -300,8 +320,8 @@
                 // PREVIEW CONTRACT
                 // =========================
                 const $contractNumber = $('#contract_number');
-                const $subAccountCode = $('#sub_account_code');
-                const $contractActivityCode = $('#contract_activity_code');
+                const $contractAccountCode = $('#contract_account_code');
+                const $contractSubActivityCode = $('#contract_sub_activity_code');
                 const $activityDescription = $('#activity_description');
 
                 // =========================
@@ -410,8 +430,8 @@
                         if (type === 'contract') {
                             const hasCompleteData =
                                 item.contract_number !== undefined &&
-                                item.sub_account_code !== undefined &&
-                                item.activity_code !== undefined &&
+                                item.account_code !== undefined &&
+                                item.sub_activity_code !== undefined &&
                                 item.activity_description !== undefined;
 
                             if (hasCompleteData) {
@@ -419,8 +439,8 @@
                                     id: item.id,
                                     text: item.text ?? '',
                                     contract_number: item.contract_number ?? '',
-                                    sub_account_code: item.sub_account_code ?? '',
-                                    activity_code: item.activity_code ?? '',
+                                    account_code: item.account_code ?? '',
+                                    sub_activity_code: item.sub_activity_code ?? '',
                                     activity_description: item.activity_description ?? '',
                                 };
                             }
@@ -455,8 +475,8 @@
                             id: $selectedOption.val(),
                             text: $selectedOption.text() ?? '',
                             contract_number: $selectedOption.attr('data-contract-number') ?? '',
-                            sub_account_code: $selectedOption.attr('data-sub-account-code') ?? '',
-                            activity_code: $selectedOption.attr('data-activity-code') ?? '',
+                            account_code: $selectedOption.attr('data-account-code') ?? '',
+                            sub_activity_code: $selectedOption.attr('data-sub-activity-code') ?? '',
                             activity_description: $selectedOption.attr('data-activity-description') ?? '',
                         };
                     }
@@ -536,7 +556,8 @@
                     }
 
                     setPreviewValue($spmNumber, selected.spm_number);
-                    setPreviewValue($accountCode, selected.account_code);
+                    setPreviewValue($('#realization_spm_number'), selected.spm_number);
+                    setPreviewValue($lsPaymentAccountCode, selected.account_code);
                     setPreviewValue($lsPaymentSubActivityCode, selected.sub_activity_code);
                     setPreviewValue($documentDescription, selected.document_description);
 
@@ -556,8 +577,9 @@
                     }
 
                     setPreviewValue($contractNumber, selected.contract_number);
-                    setPreviewValue($subAccountCode, selected.sub_account_code);
-                    setPreviewValue($contractActivityCode, selected.activity_code);
+                    setPreviewValue($('#realization_contract_number'), selected.contract_number);
+                    setPreviewValue($contractAccountCode, selected.account_code);
+                    setPreviewValue($contractSubActivityCode, selected.sub_activity_code);
                     setPreviewValue($activityDescription, selected.activity_description);
 
                     updateMatchStatus();
@@ -568,11 +590,12 @@
                 // =========================
                 function clearLsPaymentPreview() {
                     setPreviewValue($spmNumber, '');
-                    setPreviewValue($accountCode, '');
+                    setPreviewValue($('#realization_spm_number'), '');
+                    setPreviewValue($lsPaymentAccountCode, '');
                     setPreviewValue($lsPaymentSubActivityCode, '');
                     setPreviewValue($documentDescription, '');
 
-                    setValidationClass($accountCode, 'reset');
+                    setValidationClass($lsPaymentAccountCode, 'reset');
                     setValidationClass($lsPaymentSubActivityCode, 'reset');
                 }
 
@@ -581,12 +604,13 @@
                 // =========================
                 function clearContractPreview() {
                     setPreviewValue($contractNumber, '');
-                    setPreviewValue($subAccountCode, '');
-                    setPreviewValue($contractActivityCode, '');
+                    setPreviewValue($('#realization_contract_number'), '');
+                    setPreviewValue($contractAccountCode, '');
+                    setPreviewValue($contractSubActivityCode, '');
                     setPreviewValue($activityDescription, '');
 
-                    setValidationClass($subAccountCode, 'reset');
-                    setValidationClass($contractActivityCode, 'reset');
+                    setValidationClass($contractAccountCode, 'reset');
+                    setValidationClass($contractSubActivityCode, 'reset');
                 }
 
                 // =========================
@@ -603,8 +627,8 @@
                 // =========================
                 // UPDATE MATCH STATUS
                 // LOGIKA:
-                // 1. account_code == sub_account_code
-                // 2. ls_payment_sub_activity_code == contract_activity_code
+                // 1. contracts.account_code == ls_payments.account_code
+                // 2. contracts.sub_activity_code == ls_payments.sub_activity_code
                 // 3. jika keduanya sama => SAMA
                 // 4. selain itu => BEDA
                 // =========================
@@ -612,50 +636,50 @@
                     const hasLsPayment = !!$lsPaymentSelect.val();
                     const hasContract = !!$contractSelect.val();
 
-                    const accountCodeValue = normalizeText($accountCode.val());
-                    const subAccountCodeValue = normalizeText($subAccountCode.val());
+                    const lsPaymentAccountCodeValue = normalizeText($lsPaymentAccountCode.val());
+                    const contractAccountCodeValue = normalizeText($contractAccountCode.val());
 
-                    const lsActivityCodeValue = normalizeText($lsPaymentSubActivityCode.val());
-                    const contractActivityCodeValue = normalizeText($contractActivityCode.val());
+                    const lsPaymentSubActivityCodeValue = normalizeText($lsPaymentSubActivityCode.val());
+                    const contractSubActivityCodeValue = normalizeText($contractSubActivityCode.val());
 
                     // jika salah satu select belum dipilih
                     if (!hasLsPayment || !hasContract) {
-                        setFieldValidation($accountCode, $subAccountCode, null);
-                        setFieldValidation($lsPaymentSubActivityCode, $contractActivityCode, null);
+                        setFieldValidation($lsPaymentAccountCode, $contractAccountCode, null);
+                        setFieldValidation($lsPaymentSubActivityCode, $contractSubActivityCode, null);
                         clearMatchStatus();
                         return;
                     }
 
                     // =========================
-                    // MATCH KODE REKENING vs SUB REK
+                    // MATCH KODE REKENING
                     // jika salah satu kosong setelah dipilih => invalid
                     // =========================
-                    let accountMatch = false;
+                    let accountCodeMatch = false;
 
-                    if (accountCodeValue !== '' && subAccountCodeValue !== '') {
-                        accountMatch = accountCodeValue === subAccountCodeValue;
-                        setFieldValidation($accountCode, $subAccountCode, accountMatch);
+                    if (lsPaymentAccountCodeValue !== '' && contractAccountCodeValue !== '') {
+                        accountCodeMatch = lsPaymentAccountCodeValue === contractAccountCodeValue;
+                        setFieldValidation($lsPaymentAccountCode, $contractAccountCode, accountCodeMatch);
                     } else {
-                        setFieldValidation($accountCode, $subAccountCode, false);
+                        setFieldValidation($lsPaymentAccountCode, $contractAccountCode, false);
                     }
 
                     // =========================
-                    // MATCH KODE KEGIATAN
+                    // MATCH KODE SUB KEGIATAN
                     // jika salah satu kosong setelah dipilih => invalid
                     // =========================
-                    let activityMatch = false;
+                    let subActivityCodeMatch = false;
 
-                    if (lsActivityCodeValue !== '' && contractActivityCodeValue !== '') {
-                        activityMatch = lsActivityCodeValue === contractActivityCodeValue;
-                        setFieldValidation($lsPaymentSubActivityCode, $contractActivityCode, activityMatch);
+                    if (lsPaymentSubActivityCodeValue !== '' && contractSubActivityCodeValue !== '') {
+                        subActivityCodeMatch = lsPaymentSubActivityCodeValue === contractSubActivityCodeValue;
+                        setFieldValidation($lsPaymentSubActivityCode, $contractSubActivityCode, subActivityCodeMatch);
                     } else {
-                        setFieldValidation($lsPaymentSubActivityCode, $contractActivityCode, false);
+                        setFieldValidation($lsPaymentSubActivityCode, $contractSubActivityCode, false);
                     }
 
                     // =========================
                     // STATUS GLOBAL
                     // =========================
-                    const isSame = accountMatch && activityMatch;
+                    const isSame = accountCodeMatch && subActivityCodeMatch;
                     const status = isSame ? 'SAMA' : 'BEDA';
 
                     setPreviewValue($matchStatusPreview, status);

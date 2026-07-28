@@ -11,16 +11,34 @@
                 </div>
             </div>
             <div class="col-md-7">
-                <div class="text-dark mb-5">
-                    <h3 class="mb-3">Visi</h3>
+                <div class="vision-mission-content">
+                    <div class="vision-mission-item vision-item">
+                        <div class="vision-mission-icon">
+                            <i class="fa fa-eye text-white"></i>
+                        </div>
 
-                    {!! $organizationProfile->organization_vision ?? '' !!}
-                </div>
+                        <div class="vision-mission-text-area">
+                            <h3 class="vision-mission-heading mb-3">Visi</h3>
 
-                <div class="text-dark">
-                    <h3 class="mb-3">Misi</h3>
+                            <div class="vision-mission-text">
+                                {!! $organizationProfile->organization_vision ?? '' !!}
+                            </div>
+                        </div>
+                    </div>
 
-                    {!! $organizationProfile->organization_mission ?? '' !!}
+                    <div class="vision-mission-item mission-item">
+                        <div class="vision-mission-icon">
+                            <i class="fa fa-bullseye text-white"></i>
+                        </div>
+
+                        <div class="vision-mission-text-area">
+                            <h3 class="vision-mission-heading mb-3">Misi</h3>
+
+                            <div class="vision-mission-text">
+                                {!! $organizationProfile->organization_mission ?? '' !!}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

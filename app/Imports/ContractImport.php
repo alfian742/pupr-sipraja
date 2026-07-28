@@ -38,8 +38,8 @@ class ContractImport implements
         'contract_end_date' => 'Tanggal Berakhir',
         'contract_number' => 'Nomor Kontrak',
         'third_party_name' => 'Pihak III',
-        'activity_code' => 'Kode Kegiatan',
-        'sub_account_code' => 'Sub Rek',
+        'sub_activity_code' => 'Kode Sub Kegiatan',
+        'account_code' => 'Kode Rekening',
         'activity_description' => 'Uraian Kegiatan',
         'department' => 'Bidang',
         'budget_value' => 'Anggaran',
@@ -48,10 +48,7 @@ class ContractImport implements
         'bast_number' => 'Nomor BAST',
     ];
 
-    protected array $dateColumns = [
-        'contract_start_date',
-        'contract_end_date',
-    ];
+    protected array $dateColumns = []; // Tidak ada kolom tanggal yang perlu diubah menjadi format Y-m-d
 
     protected array $numericColumns = [
         'budget_value',
@@ -124,12 +121,12 @@ class ContractImport implements
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 
     public function batchSize(): int
     {
-        return 500;
+        return 50;
     }
 
     private function normalizeKeys(array $row): array

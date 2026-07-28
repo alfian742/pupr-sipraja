@@ -18,6 +18,8 @@ class DepartmentSeeder extends Seeder
                 'department_name' => 'Bina Marga',
                 'slug' => 'bina-marga',
                 'description' => 'Perencanaan, pembangunan, dan pemeliharaan jalan serta jembatan kabupaten untuk meningkatkan konektivitas dan kelancaran transportasi.',
+                'sort_order' => 0,
+                'show_on_the_homepage' => true,
                 'logo' => null,
                 'modified_by' => 1
             ],
@@ -25,6 +27,8 @@ class DepartmentSeeder extends Seeder
                 'department_name' => 'Cipta Karya',
                 'slug' => 'cipta-karya',
                 'description' => 'Pengelolaan dan pembangunan infrastruktur permukiman, gedung pemerintah, serta sarana dan prasarana dasar untuk mendukung kualitas lingkungan.',
+                'sort_order' => 1,
+                'show_on_the_homepage' => true,
                 'logo' => null,
                 'modified_by' => 1
             ],
@@ -32,6 +36,8 @@ class DepartmentSeeder extends Seeder
                 'department_name' => 'Sumber Daya Air (SDA)',
                 'slug' => 'sumber-daya-air-sda',
                 'description' => 'Pengelolaan dan pemeliharaan jaringan irigasi, pengendalian banjir, serta konservasi sumber daya air untuk mendukung ketahanan air daerah.',
+                'sort_order' => 2,
+                'show_on_the_homepage' => true,
                 'logo' => null,
                 'modified_by' => 1
             ],
@@ -39,6 +45,8 @@ class DepartmentSeeder extends Seeder
                 'department_name' => 'Penataan Ruang',
                 'slug' => 'penataan-ruang',
                 'description' => 'Perencanaan dan pengendalian tata ruang wilayah untuk mewujudkan pembangunan yang tertib, berkelanjutan, dan berwawasan lingkungan.',
+                'sort_order' => 3,
+                'show_on_the_homepage' => true,
                 'logo' => null,
                 'modified_by' => 1
             ],
@@ -46,6 +54,8 @@ class DepartmentSeeder extends Seeder
                 'department_name' => 'Sekretariat',
                 'slug' => 'sekretariat',
                 'description' => 'Mengoordinasikan administrasi umum, perencanaan program, keuangan, kepegawaian, serta layanan internal untuk mendukung kelancaran tugas seluruh bidang.',
+                'sort_order' => 4,
+                'show_on_the_homepage' => false,
                 'logo' => null,
                 'modified_by' => 1
             ],

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('target_value', 5, 2)->nullable()->comment('Target');
             $table->decimal('achievement_value', 5, 2)->nullable()->comment('Capaian');
             $table->decimal('performance_value', 5, 2)->nullable()->comment('Kinerja');
+            $table->string('period')->nullable()->comment('Periode (Triwulan, Tahunan, dan lain-lain)');
             $table->string('document_url')->nullable()->comment('Link Dokumen Pendukung');
             $table->foreignId('modified_by')->nullable()->constrained('users')->nullOnDelete()->comment('User yang terakhir mengubah data');
             $table->timestamps();

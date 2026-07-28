@@ -48,7 +48,8 @@
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table-striped table-bordered table-custom table-align-middle table">
+                                    <table
+                                        class="table-striped table-bordered table-custom table-align-middle table table-hover">
                                         @php
                                             $column = ['Foto', 'Nama', 'Jabatan', 'Riwayat'];
                                         @endphp

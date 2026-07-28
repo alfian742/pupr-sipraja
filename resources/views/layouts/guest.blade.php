@@ -233,7 +233,7 @@
                     <div class="nav-item dropdown">
                         @php
                             $otherInformationMenu = [
-                                ['title' => 'Artikel', 'route' => 'blog.index'],
+                                ['title' => 'Informasi Publik', 'route' => 'blog.index'],
                                 ['title' => 'FAQ', 'route' => 'other-informations.faqs'],
                                 ['title' => 'Pusat Unduhan', 'route' => 'other-informations.download-center.index'],
                             ];

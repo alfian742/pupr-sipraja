@@ -17,6 +17,13 @@ class MainPerformanceIndicatorSeeder extends Seeder
     {
         $modifiedBy = 1;
 
+        $periods = [
+            'Triwulan I',
+            'Triwulan II',
+            'Triwulan III',
+            'Triwulan IV',
+        ];
+
         $indicators = [
             [
                 'indicator_code' => 'IKU-001',
@@ -80,26 +87,35 @@ class MainPerformanceIndicatorSeeder extends Seeder
             ],
         ];
 
-        DB::transaction(function () use ($indicators, $modifiedBy) {
+        DB::transaction(function () use (
+            $indicators,
+            $periods,
+            $modifiedBy
+        ) {
             foreach ($indicators as $indicator) {
-                foreach ($indicator['targets'] as $measurementYear => $targetValue) {
-                    MainPerformanceIndicator::updateOrCreate(
-                        [
-                            'indicator_name' => $indicator['indicator_name'],
-                            'measurement_year' => $measurementYear,
-                        ],
-                        [
-                            'indicator_code' => $indicator['indicator_code'],
-                            'indicator_unit' => $indicator['indicator_unit'],
-                            'baseline_year' => $indicator['baseline_year'],
-                            'baseline_value' => $indicator['baseline_value'],
-                            'target_value' => $targetValue,
-                            'achievement_value' => null,
-                            'performance_value' => null,
-                            'document_url' => null,
-                            'modified_by' => $modifiedBy,
-                        ]
-                    );
+                foreach (
+                    $indicator['targets'] as $measurementYear => $targetValue
+                ) {
+                    foreach ($periods as $period) {
+                        MainPerformanceIndicator::updateOrCreate(
+                            [
+                                'indicator_name' => $indicator['indicator_name'],
+                                'measurement_year' => $measurementYear,
+                                'period' => $period,
+                            ],
+                            [
+                                'indicator_code' => $indicator['indicator_code'],
+                                'indicator_unit' => $indicator['indicator_unit'],
+                                'baseline_year' => $indicator['baseline_year'],
+                                'baseline_value' => $indicator['baseline_value'],
+                                'target_value' => $targetValue,
+                                'achievement_value' => null,
+                                'performance_value' => null,
+                                'document_url' => null,
+                                'modified_by' => $modifiedBy,
+                            ]
+                        );
+                    }
                 }
             }
         });

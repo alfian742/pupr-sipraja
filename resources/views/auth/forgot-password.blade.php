@@ -37,7 +37,7 @@
 
                                 <!-- Submit -->
                                 <x-primary-button class="text-uppercase btn-block">
-                                    {{ __('Email Password Reset Link') }}
+                                    {{-- {{ __('Email Password Reset Link') }} --}} Kirim Link Reset Password
                                 </x-primary-button>
                             </form>
 

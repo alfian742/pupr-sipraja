@@ -79,7 +79,9 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
             Route::get('/data-chart', [MainPerformanceIndicatorController::class, 'getDataChart'])->name('chart');
             Route::get('/show-chart', [MainPerformanceIndicatorController::class, 'showChart'])->name('show-chart');
             Route::post('/mass-destroy', [MainPerformanceIndicatorController::class, 'massDestroy'])->name('mass-destroy');
-
+            Route::get('/download-export/{token}', [MainPerformanceIndicatorController::class, 'downloadExport'])->name('download-export');
+            Route::get('/check-export', [MainPerformanceIndicatorController::class, 'checkExport'])->name('check-export');
+            Route::get('/export', [MainPerformanceIndicatorController::class, 'export'])->name('export');
             Route::get('/create', [MainPerformanceIndicatorController::class, 'create'])->name('create');
             Route::post('/', [MainPerformanceIndicatorController::class, 'store'])->name('store');
 
@@ -102,6 +104,9 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
                     Route::get('/data-chart', [RegionalPerformanceIndicatorController::class, 'getDataChart'])->name('chart');
                     Route::get('/show-chart', [RegionalPerformanceIndicatorController::class, 'showChart'])->name('show-chart');
                     Route::post('/mass-destroy', [RegionalPerformanceIndicatorController::class, 'massDestroy'])->name('mass-destroy');
+                    Route::get('/download-export/{token}', [RegionalPerformanceIndicatorController::class, 'downloadExport'])->name('download-export');
+                    Route::get('/check-export', [RegionalPerformanceIndicatorController::class, 'checkExport'])->name('check-export');
+                    Route::get('/export', [RegionalPerformanceIndicatorController::class, 'export'])->name('export');
                     Route::get('/create', [RegionalPerformanceIndicatorController::class, 'create'])->name('create');
                     Route::post('/', [RegionalPerformanceIndicatorController::class, 'store'])->name('store');
                     Route::get('/{id}/edit', [RegionalPerformanceIndicatorController::class, 'edit'])->name('edit');
@@ -155,9 +160,13 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
                 Route::post('/data', [RealizationController::class, 'getData'])->name('data');
                 Route::post('/mass-destroy', [RealizationController::class, 'massDestroy'])->name('mass-destroy');
                 Route::post('/mass-verification', [RealizationController::class, 'massVerification'])->name('mass-verification');
+                Route::post('/mass-resolve-reference', [RealizationController::class, 'massResolveReference'])->name('mass-resolve-reference');
+                Route::get('/download-template', [RealizationController::class, 'downloadTemplate'])->name('download-template');
                 Route::get('/download-export/{token}', [RealizationController::class, 'downloadExport'])->name('download-export');
                 Route::get('/check-export', [RealizationController::class, 'checkExport'])->name('check-export');
                 Route::get('/export', [RealizationController::class, 'export'])->name('export');
+                Route::get('/check-import', [RealizationController::class, 'checkImport'])->name('check-import');
+                Route::post('/import', [RealizationController::class, 'import'])->name('import');
                 Route::get('/create', [RealizationController::class, 'create'])->name('create');
                 Route::post('/', [RealizationController::class, 'store'])->name('store');
                 Route::get('/{id}/edit', [RealizationController::class, 'edit'])->name('edit');
@@ -208,8 +217,8 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
         });
     });
 
-    // Blog
-    Route::prefix('blog')->name('blog.')->group(function () {
+    // Blog (Indformasi Publik)
+    Route::prefix('public-information')->name('blog.')->group(function () {
         Route::get('/', function () {
             return redirect()->route('dashboard.blog.articles.index');
         })->name('index');

@@ -1,5 +1,5 @@
 <x-app-layout>
-    @php $pageTitle = 'Edit' @endphp
+    @php $pageTitle = 'Edit Indikator Kinerja Daerah' @endphp
 
     <x-slot name="title">{{ $pageTitle }}</x-slot>
 
@@ -90,7 +90,7 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="measurement_year">Tahun Pengukuran <span
                                                             class="text-danger">*</span></label>
@@ -99,6 +99,34 @@
                                                         placeholder="Contoh: 2024" name="measurement_year"
                                                         value="{{ old('measurement_year', $data->measurement_year) }}">
                                                     @error('measurement_year')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="period">Periode <span
+                                                            class="text-danger">*</span></label>
+                                                    <select id="period"
+                                                        class="form-control @error('period') is-invalid @enderror"
+                                                        name="period">
+                                                        <option value="" disabled
+                                                            {{ old('period', $data->period) ? '' : 'selected' }}>--
+                                                            Pilih Periode --</option>
+                                                        <option value="Triwulan I"
+                                                            {{ old('period', $data->period) == 'Triwulan I' ? 'selected' : '' }}>
+                                                            Triwulan I</option>
+                                                        <option value="Triwulan II"
+                                                            {{ old('period', $data->period) == 'Triwulan II' ? 'selected' : '' }}>
+                                                            Triwulan II</option>
+                                                        <option value="Triwulan III"
+                                                            {{ old('period', $data->period) == 'Triwulan III' ? 'selected' : '' }}>
+                                                            Triwulan III</option>
+                                                        <option value="Triwulan IV"
+                                                            {{ old('period', $data->period) == 'Triwulan IV' ? 'selected' : '' }}>
+                                                            Triwulan IV</option>
+                                                    </select>
+                                                    @error('period')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
@@ -140,17 +168,18 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="document_url">Link Dokumen Pendukung</label>
-                                            <input type="url" name="document_url" id="document_url"
-                                                class="form-control @error('document_url') is-invalid @enderror"
-                                                placeholder="Contoh: https://drive.google.com/file/d/1JlQJ05zoYfBWzRLEc2lAesm9AUQ9pA25/preview"
-                                                value="{{ old('document_url', $data->document_url) }}">
-                                            @error('document_url')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="document_url">Link Dokumen Pendukung</label>
+                                                    <input type="url" name="document_url" id="document_url"
+                                                        class="form-control @error('document_url') is-invalid @enderror"
+                                                        placeholder="Contoh: https://drive.google.com/file/d/1JlQJ05zoYfBWzRLEc2lAesm9AUQ9pA25/preview"
+                                                        value="{{ old('document_url', $data->document_url) }}">
+                                                    @error('document_url')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 

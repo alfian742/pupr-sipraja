@@ -6,46 +6,43 @@
     <section id="page-section">
         <div class="row justify-content-center">
             <div class="col-lg-7 mb-5 text-center">
-                <h2 class="fw-bold mb-3">{{ $category->name }}</h2>
-
                 <p class="text-dark">
-                    {{ $category->description ?: 'Temukan artikel yang termasuk dalam kategori ' . $category->name . ' pada ' . config('app.subname', 'Laravel') . '.' }}
+                    {{ $category->description ?: 'Temukan informasi yang termasuk dalam kategori ' . $category->name . ' pada ' . config('app.subname', 'Laravel') . '.' }}
                 </p>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <form action="{{ route('blog.category', $category->slug) }}" method="GET">
-                    <div class="input-group input-group-lg">
-                        <input type="search" name="search" class="form-control rounded-start"
-                            placeholder="Cari artikel pada kategori ini..." value="{{ request('search') }}">
-                        <button class="btn btn-outline-secondary rounded-end" type="submit">
-                            <i class="fa fa-search me-2"></i> Cari
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         @if (isset($categories) && $categories->count())
-            <div class="row justify-content-center mt-4">
-                <div class="col-lg-10">
-                    <div class="d-flex justify-content-center flex-wrap" style="gap: .75rem">
-                        <a href="{{ route('blog.index') }}" class="btn btn-outline-secondary rounded-pill">
-                            Semua Artikel
-                        </a>
-
-                        @foreach ($categories as $item)
-                            <a href="{{ route('blog.category', $item->slug) }}"
-                                class="btn {{ $category->id === $item->id ? 'btn-secondary' : 'btn-outline-secondary' }} rounded-pill">
-                                {{ $item->name }}
-                                <span class="badge bg-light text-dark ms-1">
-                                    {{ $item->published_articles_count ?? 0 }}
-                                </span>
-                            </a>
-                        @endforeach
+            <div class="row justify-content-center g-4">
+                <div class="col-lg-4">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text">Kategori</span>
+                        <select id="category-filter" class="form-select form-select-lg select2-category"
+                            aria-label="Kategori" data-placeholder="Pilih kategori">
+                            <option value="{{ route('blog.index') }}" @selected(!request()->routeIs('blog.category'))>
+                                Semua Kategori
+                            </option>
+                            @foreach ($categories as $category)
+                                <option value="{{ route('blog.category', $category->slug) }}"
+                                    @selected(request()->route('slug') === $category->slug)>
+                                    {{ $category->name }}
+                                    ({{ $category->published_articles_count }})
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <form action="{{ route('blog.index') }}" method="GET">
+                        <div class="input-group input-group-lg">
+                            <input type="search" name="search" class="form-control rounded-start"
+                                placeholder="Cari..." value="{{ request('search') }}">
+                            <button class="btn btn-outline-secondary rounded-end" type="submit">
+                                <i class="fa fa-search me-2"></i> Cari
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         @endif
@@ -67,7 +64,7 @@
                                 </span>
 
                                 @if ($item->is_featured)
-                                    <span class="badge bg-secondary text-white">
+                                    <span class="badge bg-warning text-dark">
                                         Unggulan
                                     </span>
                                 @endif
@@ -101,7 +98,7 @@
                             <div class="mt-auto">
                                 <a href="{{ route('blog.show', $item->slug) }}"
                                     class="btn btn-outline-secondary rounded-pill">
-                                    Baca Artikel
+                                    Selengkapnya
                                     <i class="fa fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
@@ -111,7 +108,7 @@
             @empty
                 <div class="py-5 text-center">
                     <i class="fa fa-newspaper-o fa-4x text-muted mb-4 opacity-50"></i>
-                    <h4 class="text-muted fw-bold mb-2">Artikel Belum Tersedia</h4>
+                    <h4 class="text-muted fw-bold mb-2">{{ $pageTitle }} Belum Tersedia</h4>
 
                     @if (request('search'))
                         <p class="text-muted mb-0">
@@ -133,6 +130,9 @@
     </section>
 
     @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css">
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
         <style>
             .card-title a:hover {
                 color: var(--bs-secondary) !important;
@@ -145,5 +145,28 @@
     @endpush
 
     @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/i18n/id.js"></script>
+        <script>
+            $(document).ready(function() {
+                const $categorySelect = $('#category-filter');
+
+                $categorySelect.select2({
+                    theme: 'bootstrap-5',
+                    language: 'id',
+                    width: 'style',
+                    placeholder: $categorySelect.data('placeholder'),
+                    minimumResultsForSearch: 0
+                });
+
+                $categorySelect.on('change', function() {
+                    const destination = $(this).val();
+
+                    if (destination) {
+                        window.location.href = destination;
+                    }
+                });
+            });
+        </script>
     @endpush
 </x-guest-layout>

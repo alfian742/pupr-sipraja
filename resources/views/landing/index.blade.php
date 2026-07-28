@@ -62,7 +62,18 @@
                                 @forelse ($carousels as $index => $carousel)
                                     @php
                                         $image = $carousel->image_path
-                                            ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $carousel->image_path)))
+                                            ? asset(
+                                                'storage/' .
+                                                    \Illuminate\Support\Str::replaceStart(
+                                                        'storage/',
+                                                        '',
+                                                        \Illuminate\Support\Str::replaceStart(
+                                                            'uploads/',
+                                                            '',
+                                                            $carousel->image_path,
+                                                        ),
+                                                    ),
+                                            )
                                             : asset('assets/images/placeholder.svg');
 
                                         $altText = trim(
@@ -147,13 +158,13 @@
 
             <div class="row justify-content-center g-4">
                 @forelse ($departments as $item)
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-3 col-md-6">
                         <div class="department-card h-100">
                             <div class="department-card-inner">
                                 <div class="department-icon-wrapper">
                                     @if (!empty($item->logo))
-                                        <img src="{{ asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo))) }}" class="department-logo"
-                                            alt="{{ $item->department_name }}" loadig="lazy">
+                                        <img src="{{ asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo))) }}"
+                                            class="department-logo" alt="{{ $item->department_name }}" loadig="lazy">
                                     @else
                                         @php
                                             $icon = match ($item->department_name) {
@@ -259,12 +270,12 @@
     <section class="container px-4 py-5" id="blog-section">
         <div class="row justify-content-center mb-5">
             <div class="col-md-7 text-center">
-                <h2 class="display-5 mb-3">Artikel Terbaru</h2>
+                <h2 class="display-5 mb-3">Informasi Publik Terbaru</h2>
                 <span class="article-title-line"></span>
 
                 <p class="text-dark mt-4">
-                    Temukan informasi, publikasi, dan artikel terbaru dari
-                    {{ config('app.subname', 'Laravel') }} sebagai media informasi
+                    Akses informasi publik terbaru, pengumuman, berita, serta berbagai
+                    publikasi resmi dari {{ config('app.subname', 'Laravel') }} sebagai media informasi
                     dan edukasi bagi masyarakat.
                 </p>
             </div>
@@ -277,7 +288,7 @@
                         <div class="position-relative">
                             <img src="{{ $item->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->thumbnail))) : asset('assets/images/placeholder.svg') }}"
                                 class="w-100" style="aspect-ratio: 4/3; object-fit: cover;"
-                                alt="{{ $item->title ?? 'Artikel' }}">
+                                alt="{{ $item->title ?? 'Informasi Publik' }}">
                         </div>
 
                         <div class="p-4">
@@ -321,7 +332,7 @@
 
                             <a href="{{ route('blog.show', $item->slug) }}"
                                 class="btn btn-primary rounded-pill px-4">
-                                Baca Artikel
+                                Selengkapnya
                                 <i class="fa fa-arrow-right ms-2"></i>
                             </a>
                         </div>
@@ -330,7 +341,8 @@
             </div>
 
             <div class="d-flex justify-content-center mt-5">
-                <a href="{{ route('blog.index') }}" class="btn btn-lg btn-secondary rounded-pill">Lihat Semua Artikel
+                <a href="{{ route('blog.index') }}" class="btn btn-lg btn-secondary rounded-pill">Lihat Semua
+                    Informasi Publik
                     <i class="fa fa-arrow-right ms-2"></i>
                 </a>
             </div>
@@ -452,7 +464,18 @@
                                         @foreach ($portalItems as $item)
                                             @php
                                                 $logoPath = $item->logo
-                                                    ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $item->logo)))
+                                                    ? asset(
+                                                        'storage/' .
+                                                            \Illuminate\Support\Str::replaceStart(
+                                                                'storage/',
+                                                                '',
+                                                                \Illuminate\Support\Str::replaceStart(
+                                                                    'uploads/',
+                                                                    '',
+                                                                    $item->logo,
+                                                                ),
+                                                            ),
+                                                    )
                                                     : asset('assets/images/logo-loteng-square.png');
 
                                                 $hasWebsite = !empty($item->website_url);

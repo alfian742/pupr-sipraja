@@ -51,6 +51,44 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+
+                                                <div class="form-group">
+                                                    <label for="sort_order">Urutan</label>
+                                                    <input type="number" id="sort_order"
+                                                        class="form-control @error('sort_order') is-invalid @enderror"
+                                                        placeholder="Contoh: 1" name="sort_order"
+                                                        value="{{ old('sort_order', 0) }}" min="0">
+                                                    @error('sort_order')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    <small class="text-muted">
+                                                        Digunakan untuk mengatur urutan bidang pada tampilan.
+                                                    </small>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Tampilkan Bidang di Halaman Beranda</label>
+
+                                                    <input type="hidden" name="show_on_the_homepage" value="0">
+
+                                                    <div class="d-flex align-items-center mt-1" style="gap: 0.5rem">
+                                                        <input type="checkbox"
+                                                            class="custom-form-check-input @error('show_on_the_homepage') is-invalid @enderror"
+                                                            id="show_on_the_homepage" name="show_on_the_homepage"
+                                                            value="1" @checked(old('show_on_the_homepage', 1) == 1)>
+                                                        <label for="show_on_the_homepage" class="mb-0">
+                                                            Tampilkan
+                                                        </label>
+                                                    </div>
+
+                                                    @error('show_on_the_homepage')
+                                                        <small class="text-danger d-block">{{ $message }}</small>
+                                                    @enderror
+
+                                                    <small class="text-muted">
+                                                        Jika dicentang, Bidang akan ditampilkan di halaman beranda.
+                                                    </small>
+                                                </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-2">

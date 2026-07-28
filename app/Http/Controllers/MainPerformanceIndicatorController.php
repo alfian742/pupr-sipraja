@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MainPerformanceIndicatorExport;
 use App\Http\Requests\MainPerformanceIndicatorRequest;
+use App\Jobs\MarkMainPerformanceIndicatorExportReady;
 use App\Models\MainPerformanceIndicator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Excel as ExcelFormat;
 use Yajra\DataTables\Facades\DataTables;
 
 class MainPerformanceIndicatorController extends Controller
@@ -24,9 +30,19 @@ class MainPerformanceIndicatorController extends Controller
             'massDestroy' => route('dashboard.performance-indicators.main-indicators.mass-destroy'),
         ];
 
+        $measurementYears = MainPerformanceIndicator::query()
+            ->select('measurement_year')
+            ->whereNotNull('measurement_year')
+            ->distinct()
+            ->orderBy('measurement_year', 'desc')
+            ->get();
+
+        $filterApplied = request()->has('measurement_year')
+            || request()->has('period');
+
         return view(
             'dashboard.performance-indicators.main-indicators.index',
-            compact('routeList')
+            compact('routeList', 'measurementYears', 'filterApplied')
         );
     }
 
@@ -38,6 +54,20 @@ class MainPerformanceIndicatorController extends Controller
             $query = MainPerformanceIndicator::query()
                 ->with('modifiedBy')
                 ->latest();
+
+            if (request()->filled('measurement_year')) {
+                $query->where(
+                    'measurement_year',
+                    request('measurement_year')
+                );
+            }
+
+            if (request()->filled('period')) {
+                $query->where(
+                    'period',
+                    request('period')
+                );
+            }
 
             return DataTables::of($query)
                 ->editColumn('indicator_code', function ($data) {
@@ -70,6 +100,9 @@ class MainPerformanceIndicatorController extends Controller
                 })
                 ->editColumn('performance_value', function ($data) {
                     return $this->formatDecimal($data->performance_value);
+                })
+                ->editColumn('period', function ($data) {
+                    return $data->period ?? '-';
                 })
                 ->editColumn('document_url', function ($data) {
                     if (!empty($data->document_url)) {
@@ -138,18 +171,22 @@ class MainPerformanceIndicatorController extends Controller
             $indicatorName = $request->get('indicator_name');
 
             $query = MainPerformanceIndicator::query()
-                ->whereNotNull('measurement_year');
+                ->whereNotNull('measurement_year')
+                ->whereNotNull('period');
 
-            if ($indicatorName) {
+            if (!empty($indicatorName)) {
                 $query->where('indicator_name', $indicatorName);
             }
 
             $rows = $query
                 ->orderBy('measurement_year', 'asc')
+                ->orderBy('id', 'asc')
                 ->get([
+                    'id',
                     'indicator_name',
                     'indicator_unit',
                     'measurement_year',
+                    'period',
                     'target_value',
                     'achievement_value',
                     'performance_value',
@@ -159,39 +196,102 @@ class MainPerformanceIndicatorController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'data' => [
-                        'title' => 'Indikator Kinerja Utama',
+                        'title' => $indicatorName
+                            ?: 'Indikator Kinerja Utama',
                         'unit' => '-',
-                        'labels' => [],
-                        'target' => [],
-                        'achievement' => [],
-                        'performance' => [],
+                        'charts' => [],
                     ],
                 ]);
             }
 
             $firstRow = $rows->first();
 
+            $periodOrder = [
+                'Triwulan I',
+                'Triwulan II',
+                'Triwulan III',
+                'Triwulan IV',
+            ];
+
+            $charts = $rows
+                ->groupBy(function ($row) {
+                    return (string) $row->measurement_year;
+                })
+                ->sortKeysDesc()
+                ->map(function ($yearRows, $year) use ($periodOrder) {
+                    /*
+                 * Diasumsikan satu indikator hanya memiliki satu data
+                 * untuk setiap kombinasi tahun dan periode.
+                 */
+                    $rowsByPeriod = $yearRows->keyBy('period');
+
+                    $availablePeriods = collect($periodOrder)
+                        ->filter(function ($period) use ($rowsByPeriod) {
+                            return $rowsByPeriod->has($period);
+                        })
+                        ->values();
+
+                    return [
+                        'year' => (string) $year,
+
+                        'labels' => $availablePeriods,
+
+                        'target' => $availablePeriods
+                            ->map(function ($period) use ($rowsByPeriod) {
+                                $value = $rowsByPeriod
+                                    ->get($period)
+                                    ?->target_value;
+
+                                return $value !== null
+                                    ? round((float) $value, 2)
+                                    : null;
+                            })
+                            ->values(),
+
+                        'achievement' => $availablePeriods
+                            ->map(function ($period) use ($rowsByPeriod) {
+                                $value = $rowsByPeriod
+                                    ->get($period)
+                                    ?->achievement_value;
+
+                                return $value !== null
+                                    ? round((float) $value, 2)
+                                    : null;
+                            })
+                            ->values(),
+
+                        'performance' => $availablePeriods
+                            ->map(function ($period) use ($rowsByPeriod) {
+                                $value = $rowsByPeriod
+                                    ->get($period)
+                                    ?->performance_value;
+
+                                return $value !== null
+                                    ? round((float) $value, 2)
+                                    : null;
+                            })
+                            ->values(),
+                    ];
+                })
+                ->values();
+
             return response()->json([
                 'status' => 'success',
                 'data' => [
-                    'title' => $firstRow->indicator_name ?? 'Indikator Kinerja Utama',
-                    'unit' => $firstRow->indicator_unit ?? '-',
-                    'labels' => $rows->pluck('measurement_year')
-                        ->map(fn($year) => (string) $year)
-                        ->values(),
-                    'target' => $rows->pluck('target_value')
-                        ->map(fn($value) => round((float) ($value ?? 0), 2))
-                        ->values(),
-                    'achievement' => $rows->pluck('achievement_value')
-                        ->map(fn($value) => round((float) ($value ?? 0), 2))
-                        ->values(),
-                    'performance' => $rows->pluck('performance_value')
-                        ->map(fn($value) => round((float) ($value ?? 0), 2))
-                        ->values(),
+                    'title' => $firstRow->indicator_name
+                        ?? 'Indikator Kinerja Utama',
+
+                    'unit' => $firstRow->indicator_unit
+                        ?? '-',
+
+                    'charts' => $charts,
                 ],
             ]);
         } catch (\Throwable $e) {
-            Log::error('Gagal mengambil data chart indikator kinerja Utama: ' . $e->getMessage());
+            Log::error(
+                'Gagal mengambil data chart indikator kinerja utama: '
+                    . $e->getMessage()
+            );
 
             return response()->json([
                 'status' => 'error',
@@ -383,5 +483,115 @@ class MainPerformanceIndicatorController extends Controller
         }
 
         return number_format((float) $value, 2, ',', '.');
+    }
+
+    // ============================= EXPORT =============================
+
+    public function export(Request $request)
+    {
+        $validated = $request->validate([
+            'measurement_year' => [
+                'nullable',
+                'integer',
+            ],
+            'period' => [
+                'nullable',
+                'string',
+                'in:Triwulan I,Triwulan II,Triwulan III,Triwulan IV',
+            ],
+            'export_format' => [
+                'required',
+                'string',
+                'in:xlsx,csv',
+            ],
+        ]);
+
+        $measurementYear = isset($validated['measurement_year'])
+            ? (string) $validated['measurement_year']
+            : null;
+
+        $period = $validated['period'] ?? null;
+        $format = $validated['export_format'];
+
+        $token = (string) Str::uuid();
+        $datetime = now()->format('Ymd_His');
+
+        $writerType = $format === 'csv'
+            ? ExcelFormat::CSV
+            : ExcelFormat::XLSX;
+
+        $filename = "{$datetime}_INDIKATOR_KINERJA_UTAMA.{$format}";
+
+        $path = "exports/main-performance-indicators/{$token}.{$format}";
+
+        Cache::put("export_main_performance_indicators_{$token}", [
+            'status' => 'processing',
+            'path' => $path,
+            'filename' => $filename,
+            'format' => $format,
+            'measurement_year' => $measurementYear,
+            'period' => $period,
+        ], now()->addHours(2));
+
+        (new MainPerformanceIndicatorExport(
+            $measurementYear,
+            $period,
+            $format
+        ))
+            ->queue($path, 'local', $writerType)
+            ->allOnQueue('exports')
+            ->chain([
+                new MarkMainPerformanceIndicatorExportReady(
+                    $token,
+                    $path,
+                    $filename
+                ),
+            ]);
+
+        return response()->json([
+            'message' => 'Export sedang diproses.',
+            'token' => $token,
+        ]);
+    }
+
+    public function checkExport(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+        ]);
+
+        $data = Cache::get("export_main_performance_indicators_{$validated['token']}");
+
+        if (!$data) {
+            return response()->json([
+                'ready' => false,
+                'status' => 'not_found',
+            ]);
+        }
+
+        return response()->json([
+            'ready' => $data['status'] === 'ready',
+            'status' => $data['status'],
+            'download_url' => $data['status'] === 'ready'
+                ? route('dashboard.performance-indicators.main-indicators.download-export', $validated['token'])
+                : null,
+        ]);
+    }
+
+    public function downloadExport(string $token)
+    {
+        $data = Cache::get("export_main_performance_indicators_{$token}");
+
+        abort_if(!$data || ($data['status'] ?? null) !== 'ready', 404);
+        abort_if(!Storage::disk('local')->exists($data['path']), 404);
+
+        Cache::forget("export_main_performance_indicators_{$token}");
+
+        return response()
+            ->download(
+                Storage::disk('local')->path($data['path']),
+                $data['filename']
+            )
+            ->deleteFileAfterSend(true);
     }
 }

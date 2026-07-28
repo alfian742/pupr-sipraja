@@ -54,7 +54,7 @@
                                             </p>
                                             <form
                                                 action="{{ route('dashboard.monev.finances.ls-payments.mass-add-to-realization') }}"
-                                                method="POST" id="massAddToRealizationForm">
+                                                method="POST" id="massAddToRealizationForm" class="d-none">
                                                 @csrf
 
                                                 <button class="btn btn-success" type="button" id="btnAddToRealization"
@@ -84,7 +84,8 @@
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table-striped table-bordered table-custom table-align-middle table">
+                                    <table
+                                        class="table-striped table-bordered table-custom table-align-middle table table-hover">
                                         <thead>
                                             <tr>
                                                 @foreach ($columnMaps as $column)

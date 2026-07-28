@@ -60,7 +60,7 @@ class PublicInformationPortalController extends Controller
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 class="btn btn-sm btn-info"
-                                title="Buka Website OPD">
+                                title="Buka Website">
                                 <i class="fa fa-external-link"></i> Website
                             </a>';
                 })
