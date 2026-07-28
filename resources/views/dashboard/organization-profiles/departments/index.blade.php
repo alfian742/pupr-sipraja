@@ -127,6 +127,16 @@
                             defaultContent: '-'
                         },
                         {
+                            data: 'sort_order',
+                            name: 'sort_order',
+                            defaultContent: '-'
+                        },
+                        {
+                            data: 'show_on_the_homepage',
+                            name: 'show_on_the_homepage',
+                            defaultContent: '-'
+                        },
+                        {
                             data: 'history',
                             name: 'history',
                             defaultContent: '-'
