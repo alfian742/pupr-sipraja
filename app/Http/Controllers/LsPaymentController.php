@@ -53,13 +53,13 @@ class LsPaymentController extends Controller
                 ['field' => 'document_type', 'label' => 'Jenis Dokumen', 'type' => 'text'],
                 ['field' => 'transaction_type', 'label' => 'Jenis Transaksi', 'type' => 'text'],
                 ['field' => 'dpt_number', 'label' => 'Nomor DPT', 'type' => 'text'],
-                ['field' => 'document_date', 'label' => 'Tanggal Dokumen', 'type' => 'date'],
+                ['field' => 'document_date', 'label' => 'Tanggal Dokumen', 'type' => 'text'],
                 ['field' => 'document_description', 'label' => 'Keterangan Dokumen', 'type' => 'text'],
                 ['field' => 'realization_value', 'label' => 'Nilai Realisasi', 'type' => 'numeric'],
                 ['field' => 'deposit_value', 'label' => 'Nilai Setoran', 'type' => 'numeric'],
                 ['field' => 'nip', 'label' => 'NIP', 'type' => 'text'],
                 ['field' => 'personnel_name', 'label' => 'Nama Pegawai', 'type' => 'text'],
-                ['field' => 'saved_date', 'label' => 'Tanggal Simpan', 'type' => 'date'],
+                ['field' => 'saved_date', 'label' => 'Tanggal Simpan', 'type' => 'text'],
                 ['field' => 'spd_number', 'label' => 'Nomor SPD', 'type' => 'text'],
                 ['field' => 'spd_period', 'label' => 'Periode SPD', 'type' => 'text'],
                 ['field' => 'spd_value', 'label' => 'Nilai SPD', 'type' => 'numeric'],
@@ -67,12 +67,12 @@ class LsPaymentController extends Controller
                 ['field' => 'sub_stage_name', 'label' => 'Nama Sub Tahapan Jadwal', 'type' => 'text'],
                 ['field' => 'apbd_stage', 'label' => 'Tahapan APBD', 'type' => 'text'],
                 ['field' => 'spp_number', 'label' => 'Nomor SPP', 'type' => 'text'],
-                ['field' => 'spp_date', 'label' => 'Tanggal SPP', 'type' => 'date'],
+                ['field' => 'spp_date', 'label' => 'Tanggal SPP', 'type' => 'text'],
                 ['field' => 'spm_number', 'label' => 'Nomor SPM', 'type' => 'text'],
-                ['field' => 'spm_date', 'label' => 'Tanggal SPM', 'type' => 'date'],
+                ['field' => 'spm_date', 'label' => 'Tanggal SPM', 'type' => 'text'],
                 ['field' => 'sp2d_number', 'label' => 'Nomor SP2D', 'type' => 'text'],
-                ['field' => 'sp2d_date', 'label' => 'Tanggal SP2D', 'type' => 'date'],
-                ['field' => 'transfer_date', 'label' => 'Tanggal Transfer', 'type' => 'date'],
+                ['field' => 'sp2d_date', 'label' => 'Tanggal SP2D', 'type' => 'text'],
+                ['field' => 'transfer_date', 'label' => 'Tanggal Transfer', 'type' => 'text'],
                 ['field' => 'sp2d_value', 'label' => 'Nilai SP2D', 'type' => 'numeric'],
             ],
 
@@ -599,7 +599,7 @@ class LsPaymentController extends Controller
             ]);
 
         return response()->json([
-            'message' => 'Export sedang diproses.',
+            'message' => 'Ekspor sedang diproses.',
             'token' => $token,
         ]);
     }
@@ -703,7 +703,7 @@ class LsPaymentController extends Controller
                 ]);
 
             return response()->json([
-                'message' => 'Import sedang diproses.',
+                'message' => 'Impor sedang diproses.',
                 'token' => $token,
             ]);
         } catch (\Throwable $e) {

@@ -27,6 +27,9 @@ class DepartmentController extends Controller
                 ->with('modifiedBy');
 
             return DataTables::of($query)
+                ->editColumn('show_on_the_homepage', function ($data) {
+                    return $data->show_on_the_homepage ? 'Ya' : 'Tidak';
+                })
                 ->editColumn('description', function ($data) {
                     $text = strip_tags($data->description);
 

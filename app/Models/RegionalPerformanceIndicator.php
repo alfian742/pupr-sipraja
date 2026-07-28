@@ -32,6 +32,7 @@ class RegionalPerformanceIndicator extends Model
         'target_value',
         'achievement_value',
         'performance_value',
+        'period',
         'document_url',
         'modified_by',
     ];

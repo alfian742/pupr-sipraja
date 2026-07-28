@@ -35,8 +35,8 @@ class ContractExport implements
         'contract_end_date',
         'contract_number',
         'third_party_name',
-        'activity_code',
-        'sub_account_code',
+        'sub_activity_code',
+        'account_code',
         'activity_description',
         'department',
         'budget_value',
@@ -45,10 +45,7 @@ class ContractExport implements
         'bast_number',
     ];
 
-    private array $dateColumns = [
-        'contract_start_date',
-        'contract_end_date',
-    ];
+    private array $dateColumns = []; // Tidak ada kolom tanggal yang perlu diubah menjadi format Y-m-d
 
     private array $numericColumns = [
         'budget_value',
@@ -60,8 +57,8 @@ class ContractExport implements
         'contract_end_date' => 'Tanggal Berakhir',
         'contract_number' => 'Nomor Kontrak',
         'third_party_name' => 'Pihak III',
-        'activity_code' => 'Kode Kegiatan',
-        'sub_account_code' => 'Sub Rek',
+        'sub_activity_code' => 'Kode Sub Kegiatan',
+        'account_code' => 'Kode Rekening',
         'activity_description' => 'Uraian Kegiatan',
         'department' => 'Bidang',
         'budget_value' => 'Anggaran',
@@ -87,18 +84,30 @@ class ContractExport implements
 
     public function query()
     {
-        $selectColumns = array_values(array_intersect($this->exportOrder, $this->columns));
+        $selectColumns = array_values(array_intersect(
+            $this->exportOrder,
+            $this->columns
+        ));
 
         $query = Contract::query()
             ->select($selectColumns)
-            ->orderBy('contract_start_date')
+            ->orderBy('created_at')
             ->orderBy('id');
 
-        if (!empty($this->startDate) && !empty($this->endDate)) {
-            $query->where(function ($q) {
-                $q->whereBetween('contract_start_date', [$this->startDate, $this->endDate])
-                    ->orWhereBetween('contract_end_date', [$this->startDate, $this->endDate]);
-            });
+        if (!empty($this->startDate)) {
+            $query->where(
+                'created_at',
+                '>=',
+                Carbon::parse($this->startDate)->startOfDay()
+            );
+        }
+
+        if (!empty($this->endDate)) {
+            $query->where(
+                'created_at',
+                '<',
+                Carbon::parse($this->endDate)->addDay()->startOfDay()
+            );
         }
 
         return $query;
@@ -181,7 +190,7 @@ class ContractExport implements
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 
     private function columnLetterFromIndex(int $index): string

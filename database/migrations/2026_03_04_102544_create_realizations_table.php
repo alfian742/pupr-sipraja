@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('realizations', function (Blueprint $table) {
             $table->id();
 
-            $table->dateTime('verification_date')->nullable()->comment('Tanggal Verifikasi');
+            $table->string('verification_date')->nullable()->comment('Tanggal Verifikasi');
 
             $table->foreignId('verified_by')
                 ->nullable()
@@ -28,11 +28,15 @@ return new class extends Migration
                 ->nullOnDelete()
                 ->comment('Relasi ke contracts.id');
 
+            $table->string('realization_contract_number')->nullable()->comment('Nomor Kontrak dari Impor Data');
+
             $table->foreignId('ls_payment_id')
                 ->nullable()
                 ->constrained('ls_payments')
                 ->nullOnDelete()
                 ->comment('Relasi ke ls_payments.id');
+
+            $table->string('realization_spm_number')->nullable()->comment('Nomor SPM dari Impor Data');
 
             $table->string('match_status')
                 ->nullable()
@@ -55,6 +59,8 @@ return new class extends Migration
             $table->index('ls_payment_id');
             $table->index('verification_date');
             $table->index('match_status');
+            $table->index('realization_contract_number');
+            $table->index('realization_spm_number');
             $table->index(['contract_id', 'ls_payment_id']);
 
             $table->unique(['contract_id', 'ls_payment_id'], 'realizations_contract_ls_payment_unique');

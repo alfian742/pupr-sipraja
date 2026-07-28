@@ -259,24 +259,53 @@
 
         <script src="{{ asset('app-assets/vendors/js/charts/chart.min.js') }}"></script>
 
+        <script src="{{ asset('app-assets/vendors/js/charts/chart.min.js') }}"></script>
+
         <script>
             const MAIN_INDICATOR_CONFIG = {
-                chartUrl: "{{ route('dashboard.performance-indicators.main-indicators.chart') }}"
+                chartUrl: "{{ route('dashboard.performance-indicators.main-indicators.chart') }}",
+                currentYear: @json(\Carbon\Carbon::now()->year)
             };
 
-            let regionalChartInstance = null;
+            let mainIndicatorChartInstances = [];
 
-            function ensureWrapperRelative() {
-                const wrapper = document.getElementById('main-indicator-chart-wrapper');
-                if (!wrapper) return null;
-                if (getComputedStyle(wrapper).position === 'static') wrapper.style.position = 'relative';
+            function getChartWrapper() {
+                const wrapper = document.getElementById(
+                    'main-indicator-chart-wrapper'
+                );
+
+                if (!wrapper) {
+                    return null;
+                }
+
+                if (getComputedStyle(wrapper).position === 'static') {
+                    wrapper.style.position = 'relative';
+                }
+
                 return wrapper;
             }
 
+            function destroyChartInstances() {
+                mainIndicatorChartInstances.forEach(function(chart) {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                });
+
+                mainIndicatorChartInstances = [];
+            }
+
             function showLoader(wrapper) {
+                removeLoader(wrapper);
+
                 const loader = document.createElement('div');
+
                 loader.setAttribute('data-loader', '1');
-                loader.innerHTML = `<span class="ft-refresh-cw icon-spin"></span>&nbsp; Memuat data...`;
+
+                loader.innerHTML = `
+                    <span class="ft-refresh-cw icon-spin"></span>
+                    <span>Memuat data...</span>
+                `;
 
                 Object.assign(loader.style, {
                     position: 'absolute',
@@ -301,145 +330,443 @@
                 });
 
                 wrapper.appendChild(loader);
+
                 return loader;
             }
 
             function removeLoader(wrapper) {
-                const existing = wrapper.querySelector('[data-loader="1"]');
-                if (existing) existing.remove();
-            }
-
-            function updateHeader(data) {
-                document.getElementById('main-indicator-title').innerText = data?.title ?? 'Indikator';
-                document.getElementById('main-indicator-unit').innerText = `Satuan: ${data?.unit ?? '-'}`;
-            }
-
-            function renderOrUpdateChart(data) {
-                const canvas = document.getElementById('main-indicator-chart');
-                if (!canvas) return;
-
-                const ctx = canvas.getContext('2d');
-
-                if (regionalChartInstance) {
-                    regionalChartInstance.destroy();
-                    regionalChartInstance = null;
+                if (!wrapper) {
+                    return;
                 }
 
-                const colorTarget = "rgba(85, 89, 92, 0.7)";
-                const colorAchievement = "rgba(55, 188, 155, 0.7)";
-                const colorPerformance = "rgba(59, 175, 218, 0.7)";
+                const loader = wrapper.querySelector(
+                    '[data-loader="1"]'
+                );
 
-                regionalChartInstance = new Chart(ctx, {
+                if (loader) {
+                    loader.remove();
+                }
+            }
+
+            function updateHeader(data = null) {
+                const headerElement = document.getElementById(
+                    'main-indicator-header'
+                );
+
+                const titleElement = document.getElementById(
+                    'main-indicator-title'
+                );
+
+                const unitElement = document.getElementById(
+                    'main-indicator-unit'
+                );
+
+                if (!data) {
+                    if (headerElement) {
+                        headerElement.classList.add('d-none');
+                    }
+
+                    if (titleElement) {
+                        titleElement.textContent = 'Indikator';
+                    }
+
+                    if (unitElement) {
+                        unitElement.textContent = 'Satuan: -';
+                    }
+
+                    return;
+                }
+
+                if (titleElement) {
+                    titleElement.textContent =
+                        data.title || 'Indikator';
+                }
+
+                if (unitElement) {
+                    unitElement.textContent =
+                        `Satuan: ${data.unit || '-'}`;
+                }
+
+                if (headerElement) {
+                    headerElement.classList.remove('d-none');
+                }
+            }
+
+            function showChartMessage(message, type = 'info') {
+                const wrapper = getChartWrapper();
+
+                if (!wrapper) {
+                    return;
+                }
+
+                destroyChartInstances();
+
+                wrapper.innerHTML = '';
+
+                const alert = document.createElement('div');
+
+                alert.className =
+                    `alert alert-${type} text-center mb-0`;
+
+                alert.textContent = message;
+
+                wrapper.appendChild(alert);
+            }
+
+            function formatNumber(value) {
+                if (
+                    value === null ||
+                    value === undefined ||
+                    value === ''
+                ) {
+                    return '-';
+                }
+
+                const number = Number(value);
+
+                if (Number.isNaN(number)) {
+                    return value;
+                }
+
+                return number.toLocaleString('id-ID', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            function getSelectedYearChart(charts) {
+                if (
+                    !Array.isArray(charts) ||
+                    charts.length === 0
+                ) {
+                    return null;
+                }
+
+                const currentYear = String(
+                    MAIN_INDICATOR_CONFIG.currentYear
+                );
+
+                /*
+                 * Prioritas pertama adalah data tahun berjalan.
+                 */
+                const currentYearChart = charts.find(
+                    function(chartData) {
+                        return String(chartData.year) === currentYear;
+                    }
+                );
+
+                if (currentYearChart) {
+                    return currentYearChart;
+                }
+
+                /*
+                 * Jika data tahun berjalan tidak tersedia,
+                 * ambil data dengan tahun paling baru.
+                 */
+                const sortedCharts = [...charts].sort(
+                    function(firstChart, secondChart) {
+                        return Number(secondChart.year) -
+                            Number(firstChart.year);
+                    }
+                );
+
+                return sortedCharts[0] || null;
+            }
+
+            function renderCharts(data) {
+                const wrapper = getChartWrapper();
+
+                if (!wrapper) {
+                    return;
+                }
+
+                destroyChartInstances();
+
+                wrapper.innerHTML = '';
+
+                const charts = Array.isArray(data?.charts) ?
+                    data.charts : [];
+
+                if (charts.length === 0) {
+                    showChartMessage(
+                        'Data grafik untuk indikator tersebut tidak ditemukan.',
+                        'warning'
+                    );
+
+                    return;
+                }
+
+                const selectedChart = getSelectedYearChart(charts);
+
+                if (!selectedChart) {
+                    showChartMessage(
+                        'Data grafik untuk indikator tersebut tidak ditemukan.',
+                        'warning'
+                    );
+
+                    return;
+                }
+
+                const colorTarget =
+                    'rgba(85, 89, 92, 0.7)';
+
+                const colorAchievement =
+                    'rgba(55, 188, 155, 0.7)';
+
+                const colorPerformance =
+                    'rgba(59, 175, 218, 0.7)';
+
+                const canvasWrapper =
+                    document.createElement('div');
+
+                canvasWrapper.style.position = 'relative';
+                canvasWrapper.style.height = '300px';
+
+                const canvas = document.createElement('canvas');
+
+                canvas.className = 'h-100';
+
+                canvasWrapper.appendChild(canvas);
+                wrapper.appendChild(canvasWrapper);
+
+                const context = canvas.getContext('2d');
+
+                const chartInstance = new Chart(context, {
                     type: 'bar',
+
                     data: {
-                        labels: data.labels ?? [],
+                        labels: selectedChart.labels || [],
+
                         datasets: [{
-                                label: "Target",
-                                data: data.target ?? [],
+                                label: 'Target',
+                                data: selectedChart.target || [],
                                 backgroundColor: colorTarget,
                                 borderColor: colorTarget,
                                 borderWidth: 1
                             },
                             {
-                                label: "Capaian",
-                                data: data.achievement ?? [],
+                                label: 'Capaian',
+                                data: selectedChart.achievement || [],
                                 backgroundColor: colorAchievement,
                                 borderColor: colorAchievement,
                                 borderWidth: 1
                             },
                             {
-                                label: "Kinerja",
-                                data: data.performance ?? [],
+                                label: 'Kinerja',
+                                data: selectedChart.performance || [],
                                 backgroundColor: colorPerformance,
                                 borderColor: colorPerformance,
                                 borderWidth: 1
                             }
                         ]
                     },
+
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+
+                        title: {
+                            display: true,
+                            text: `Tahun ${selectedChart.year}`,
+                            fontSize: 16,
+                            fontStyle: 'bold'
+                        },
+
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+
+                        tooltips: {
+                            callbacks: {
+                                label: function(
+                                    tooltipItem,
+                                    chart
+                                ) {
+                                    const dataset =
+                                        chart.datasets[
+                                            tooltipItem.datasetIndex
+                                        ];
+
+                                    const value =
+                                        dataset.data[
+                                            tooltipItem.index
+                                        ];
+
+                                    const unit =
+                                        data?.unit &&
+                                        data.unit !== '-' ?
+                                        ` ${data.unit}` :
+                                        '';
+
+                                    return `${dataset.label}: ${formatNumber(value)}${unit}`;
+                                }
+                            }
+                        },
+
                         scales: {
                             xAxes: [{
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Tahun'
+                                    labelString: 'Periode'
                                 },
+
                                 ticks: {
                                     fontSize: 12
                                 },
+
                                 gridLines: {
                                     display: false
                                 }
                             }],
+
                             yAxes: [{
                                 ticks: {
                                     beginAtZero: true,
-                                    fontSize: 12
+                                    fontSize: 12,
+
+                                    callback: function(value) {
+                                        return formatNumber(
+                                            value
+                                        );
+                                    }
                                 },
+
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Nilai'
+                                    labelString: data?.unit &&
+                                        data.unit !== '-' ?
+                                        `Nilai (${data.unit})` : 'Nilai'
                                 }
                             }]
                         }
                     }
                 });
+
+                mainIndicatorChartInstances.push(
+                    chartInstance
+                );
             }
 
             async function loadIndicatorChart(indicatorName) {
-                const wrapper = ensureWrapperRelative();
-                if (!wrapper) return;
+                const wrapper = getChartWrapper();
 
-                removeLoader(wrapper);
+                if (!wrapper) {
+                    return;
+                }
+
+                if (!indicatorName) {
+                    updateHeader();
+
+                    showChartMessage(
+                        'Data nama indikator belum tersedia.',
+                        'warning'
+                    );
+
+                    return;
+                }
+
                 const loader = showLoader(wrapper);
 
                 try {
-                    const params = new URLSearchParams();
-
-                    if (indicatorName) {
-                        params.append('indicator_name', indicatorName);
-                    }
-
-                    const res = await fetch(`${MAIN_INDICATOR_CONFIG.chartUrl}?${params.toString()}`, {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
+                    /*
+                     * Tahun tidak dikirim ke controller.
+                     * Controller tetap mengirim semua tahun,
+                     * kemudian dashboard memilih tahun berjalan
+                     * atau tahun paling baru melalui JavaScript.
+                     */
+                    const params = new URLSearchParams({
+                        indicator_name: indicatorName
                     });
 
-                    const json = await res.json();
+                    const response = await fetch(
+                        `${MAIN_INDICATOR_CONFIG.chartUrl}?${params.toString()}`, {
+                            method: 'GET',
 
-                    if (json.status === 'success') {
-                        updateHeader(json.data);
-                        renderOrUpdateChart(json.data);
-                    } else {
-                        console.error(json);
-                        alert('Gagal memuat data chart.');
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        }
+                    );
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            result.message ||
+                            'Gagal mengambil data grafik.'
+                        );
                     }
-                } catch (e) {
-                    console.error(e);
-                    alert('Gagal memuat data chart.');
+
+                    if (
+                        result.status !== 'success' ||
+                        !result.data
+                    ) {
+                        throw new Error(
+                            result.message ||
+                            'Respons data grafik tidak valid.'
+                        );
+                    }
+
+                    updateHeader(result.data);
+                    renderCharts(result.data);
+                } catch (error) {
+                    console.error(error);
+
+                    updateHeader();
+
+                    showChartMessage(
+                        error.message ||
+                        'Terjadi kesalahan saat memuat grafik.',
+                        'danger'
+                    );
                 } finally {
-                    setTimeout(() => {
-                        if (loader) loader.remove();
-                    }, 300);
+                    removeLoader(wrapper);
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const nameSelect = document.getElementById('main-indicator-name-select');
+            document.addEventListener(
+                'DOMContentLoaded',
+                function() {
+                    const nameSelect =
+                        document.getElementById(
+                            'main-indicator-name-select'
+                        );
 
-                if (nameSelect && nameSelect.options.length > 1) {
-                    nameSelect.selectedIndex = 1;
-                    loadIndicatorChart(nameSelect.value);
-                } else {
-                    loadIndicatorChart('');
+                    if (!nameSelect) {
+                        return;
+                    }
+
+                    /*
+                     * Dashboard tidak mengosongkan select.
+                     * Option pertama otomatis menjadi indikator awal.
+                     */
+                    if (
+                        nameSelect.options.length > 0 &&
+                        nameSelect.value
+                    ) {
+                        loadIndicatorChart(
+                            nameSelect.value
+                        );
+                    } else {
+                        updateHeader();
+
+                        showChartMessage(
+                            'Data nama indikator belum tersedia.',
+                            'warning'
+                        );
+                    }
+
+                    nameSelect.addEventListener(
+                        'change',
+                        function() {
+                            loadIndicatorChart(
+                                this.value
+                            );
+                        }
+                    );
                 }
-
-                nameSelect.addEventListener('change', function() {
-                    loadIndicatorChart(this.value);
-                });
-            });
+            );
         </script>
 
         <script>

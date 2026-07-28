@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\RegionalPerformanceIndicator;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RegionalPerformanceIndicatorSeeder extends Seeder
@@ -13,6 +12,13 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
      */
     public function run(): void
     {
+        $periods = [
+            'Triwulan I',
+            'Triwulan II',
+            'Triwulan III',
+            'Triwulan IV',
+        ];
+
         $rows = array_merge(
             // I. ASPEK GEOGRAFI DAN DEMOGRAFI
             $this->buildIndicatorRows(
@@ -30,6 +36,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 98.73,
                     2030 => 98.93,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-002',
@@ -46,6 +53,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 7.38,
                     2030 => 12.52,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-003',
@@ -62,6 +70,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 419.19,
                     2030 => 435.17,
                 ],
+                periods: $periods,
             ),
 
             // II. ASPEK DAYA SAING DAERAH
@@ -80,6 +89,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 68.47,
                     2030 => 70.03,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-005',
@@ -96,6 +106,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 65.86,
                     2030 => 69.46,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-006',
@@ -112,6 +123,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 5.08,
                     2030 => 6.26,
                 ],
+                periods: $periods,
             ),
 
             // III. INDIKATOR KINERJA KUNCI
@@ -130,6 +142,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 79.501,
                     2030 => 81.166,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-008',
@@ -146,6 +159,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 99.76,
                     2030 => 100.00,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-009',
@@ -162,6 +176,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 83.51,
                     2030 => 84.24,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-010',
@@ -178,6 +193,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 91.18,
                     2030 => 91.93,
                 ],
+                periods: $periods,
             ),
             $this->buildIndicatorRows(
                 code: 'IKD-011',
@@ -194,6 +210,7 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
                     2029 => 100.00,
                     2030 => 100.00,
                 ],
+                periods: $periods,
             ),
         );
 
@@ -208,37 +225,54 @@ class RegionalPerformanceIndicatorSeeder extends Seeder
         int $baselineYear,
         ?float $baselineValue,
         array $targets,
+        array $periods,
         int $modifiedBy = 1
     ): array {
         $now = now();
 
         return collect($targets)
-            ->map(function ($targetValue, $measurementYear) use (
+            ->flatMap(function ($targetValue, $measurementYear) use (
                 $code,
                 $type,
                 $name,
                 $unit,
                 $baselineYear,
                 $baselineValue,
+                $periods,
                 $modifiedBy,
                 $now
             ) {
-                return [
-                    'indicator_code'     => $code,
-                    'indicator_type'     => $type,
-                    'indicator_name'     => $name,
-                    'indicator_unit'     => $unit,
-                    'baseline_year'      => $baselineYear,
-                    'baseline_value'     => $baselineValue,
-                    'measurement_year'   => $measurementYear,
-                    'target_value'       => $targetValue,
-                    'achievement_value'  => null,
-                    'performance_value'  => null,
-                    'document_url'       => null,
-                    'modified_by'        => $modifiedBy,
-                    'created_at'         => $now,
-                    'updated_at'         => $now,
-                ];
+                return collect($periods)
+                    ->map(function ($period) use (
+                        $code,
+                        $type,
+                        $name,
+                        $unit,
+                        $baselineYear,
+                        $baselineValue,
+                        $measurementYear,
+                        $targetValue,
+                        $modifiedBy,
+                        $now
+                    ) {
+                        return [
+                            'indicator_code'     => $code,
+                            'indicator_type'     => $type,
+                            'indicator_name'     => $name,
+                            'indicator_unit'     => $unit,
+                            'baseline_year'      => $baselineYear,
+                            'baseline_value'     => $baselineValue,
+                            'measurement_year'   => $measurementYear,
+                            'period'             => $period,
+                            'target_value'       => $targetValue,
+                            'achievement_value'  => null,
+                            'performance_value'  => null,
+                            'document_url'       => null,
+                            'modified_by'        => $modifiedBy,
+                            'created_at'         => $now,
+                            'updated_at'         => $now,
+                        ];
+                    });
             })
             ->values()
             ->all();

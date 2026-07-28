@@ -45,10 +45,20 @@ class RealizationRequest extends FormRequest
                     ->ignore($realizationId),
             ],
 
+            'realization_spm_number' => [
+                'required',
+                'string',
+            ],
+
             'contract_id' => [
                 'required',
                 'integer',
                 'exists:contracts,id',
+            ],
+
+            'realization_contract_number' => [
+                'required',
+                'string',
             ],
 
             'match_status' => [
@@ -69,10 +79,12 @@ class RealizationRequest extends FormRequest
             'ls_payment_id.integer'  => 'Nomor SPM tidak valid.',
             'ls_payment_id.exists'   => 'Data Nomor SPM yang dipilih tidak ditemukan.',
             'ls_payment_id.unique'   => 'Kombinasi Nomor Kontrak dan Nomor SPM sudah digunakan.',
+            'realization_spm_number.required' => 'Nomor SPM wajib dipilih.',
 
             'contract_id.required' => 'Nomor kontrak wajib dipilih.',
             'contract_id.integer'  => 'Nomor kontrak tidak valid.',
             'contract_id.exists'   => 'Data nomor kontrak yang dipilih tidak ditemukan.',
+            'realization_contract_number.required' => 'Nomor kontrak wajib dipilih.',
 
             'match_status.string' => 'Status kecocokan harus berupa teks.',
             'match_status.in'     => 'Status kecocokan harus bernilai SAMA atau BEDA.',

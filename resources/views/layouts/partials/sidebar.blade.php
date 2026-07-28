@@ -244,7 +244,7 @@
                 <li class="nav-item">
                     <a href="#">
                         <i class="icon-notebook"></i>
-                        <span class="menu-title">Blog</span>
+                        <span class="menu-title">Informasi Publik</span>
                     </a>
                     <ul class="menu-content">
                         <li class="@if (request()->routeIs('dashboard.blog.categories.*')) active @endif">

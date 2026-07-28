@@ -181,7 +181,7 @@
                 position: absolute;
                 width: 260px;
                 height: 260px;
-                right: -90px;
+                right: -70px;
                 top: -70px;
                 border-radius: 50%;
                 background: rgba(242, 174, 20, 0.18);
@@ -276,7 +276,7 @@
                 justify-content: center;
                 margin: 0 auto;
                 padding: 46px 38px;
-                background: #ffffff;
+                /* background: #ffffff; */
             }
 
             .auth-mobile-logo {

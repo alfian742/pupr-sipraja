@@ -29,57 +29,38 @@ class RealizationExport implements
     private string $format;
 
     private array $exportOrder = [
-        'verfication_date',
-        'verified_by',
-        'contract_start_date',
-        'contract_end_date',
+        'verification_date',
         'contract_number',
         'third_party_name',
-        'activity_code',
-        'sub_account_code',
+        'sub_activity_code',
+        'account_code',
         'activity_description',
         'department',
-        'fund_source',
         'spm_number',
         'sp2d_date',
         'sp2d_number',
         'document_description',
-        'budget_value',
-        'contract_value',
         'sp2d_value',
     ];
 
-    private array $dateColumns = [
-        'verfication_date',
-        'contract_start_date',
-        'contract_end_date',
-        'sp2d_date',
-    ];
+    private array $dateColumns = []; // Tidak ada kolom tanggal yang perlu diubah menjadi format Y-m-d
 
     private array $numericColumns = [
-        'budget_value',
-        'contract_value',
         'sp2d_value',
     ];
 
     private array $headingsMap = [
-        'verfication_date' => 'Tanggal Verifikasi',
-        'verified_by' => 'Verifikasi Oleh',
-        'contract_start_date' => 'Tanggal Mulai',
-        'contract_end_date' => 'Tanggal Berakhir',
+        'verification_date' => 'Tanggal Verifikasi',
         'contract_number' => 'Nomor Kontrak',
         'third_party_name' => 'Pihak III',
-        'activity_code' => 'Kode Kegiatan',
-        'sub_account_code' => 'Sub Rek',
+        'sub_activity_code' => 'Kode Sub Kegiatan',
+        'account_code' => 'Kode Rekening',
         'activity_description' => 'Uraian Kegiatan',
         'department' => 'Bidang',
-        'fund_source' => 'Sumber Dana',
         'spm_number' => 'Nomor SPM',
         'sp2d_date' => 'Tanggal SP2D',
         'sp2d_number' => 'Nomor SP2D',
         'document_description' => 'Uraian Pekerjaan',
-        'budget_value' => 'Anggaran',
-        'contract_value' => 'Nilai Kontrak',
         'sp2d_value' => 'Realisasi',
     ];
 
@@ -98,21 +79,28 @@ class RealizationExport implements
         $query = Realization::query()
             ->with([
                 'verifier:id,name',
-                'contract:id,contract_start_date,contract_end_date,contract_number,third_party_name,activity_code,sub_account_code,activity_description,department,fund_source,budget_value,contract_value',
+                'contract:id,contract_number,third_party_name,sub_activity_code,account_code,activity_description,department',
                 'lsPayment:id,spm_number,sp2d_date,sp2d_number,document_description,sp2d_value',
             ])
-            ->orderBy('verification_date')
+            ->orderBy('created_at')
             ->orderBy('id');
 
-        if (!empty($this->startDate) && !empty($this->endDate)) {
-            $query->whereBetween('verification_date', [
-                $this->startDate,
-                $this->endDate,
-            ]);
-        } elseif (!empty($this->startDate)) {
-            $query->where('verification_date', '>=', $this->startDate);
-        } elseif (!empty($this->endDate)) {
-            $query->where('verification_date', '<=', $this->endDate);
+        if (!empty($this->startDate)) {
+            $query->where(
+                'created_at',
+                '>=',
+                Carbon::parse($this->startDate)->startOfDay()
+            );
+        }
+
+        if (!empty($this->endDate)) {
+            $query->where(
+                'created_at',
+                '<',
+                Carbon::parse($this->endDate)
+                    ->addDay()
+                    ->startOfDay()
+            );
         }
 
         return $query;
@@ -129,23 +117,17 @@ class RealizationExport implements
     public function map($row): array
     {
         $data = [
-            'verfication_date' => $row->verification_date,
-            'verified_by' => $row->verifier?->name,
-            'contract_start_date' => $row->contract?->contract_start_date,
-            'contract_end_date' => $row->contract?->contract_end_date,
+            'verification_date' => $row->verification_date,
             'contract_number' => $row->contract?->contract_number,
             'third_party_name' => $row->contract?->third_party_name,
-            'activity_code' => $row->contract?->activity_code,
-            'sub_account_code' => $row->contract?->sub_account_code,
+            'sub_activity_code' => $row->contract?->sub_activity_code,
+            'account_code' => $row->contract?->account_code,
             'activity_description' => $row->contract?->activity_description,
             'department' => $row->contract?->department,
-            'fund_source' => $row->contract?->fund_source,
             'spm_number' => $row->lsPayment?->spm_number,
             'sp2d_date' => $row->lsPayment?->sp2d_date,
             'sp2d_number' => $row->lsPayment?->sp2d_number,
             'document_description' => $row->lsPayment?->document_description,
-            'budget_value' => $row->contract?->budget_value,
-            'contract_value' => $row->contract?->contract_value,
             'sp2d_value' => $row->lsPayment?->sp2d_value,
         ];
 

@@ -36,6 +36,15 @@ class DepartmentRequest extends FormRequest
                 'nullable',
                 'string',
             ],
+            'sort_order' => [
+                'nullable',
+                'integer',
+                'min:0',
+            ],
+            'show_on_the_homepage' => [
+                'nullable',
+                'boolean',
+            ],
             'logo' => [
                 'nullable',
                 'image',
@@ -58,6 +67,9 @@ class DepartmentRequest extends FormRequest
             'department_name.unique'   => 'Nama bidang sudah digunakan.',
 
             'description.string' => 'Deskripsi harus berupa teks.',
+            'sort_order.integer' => 'Urutan bidang harus berupa angka.',
+            'sort_order.min'     => 'Urutan bidang minimal 0.',
+            'show_on_the_homepage.boolean' => 'Format tampilkan di beranda tidak valid.',
 
             'logo.image' => 'Logo harus berupa gambar.',
             'logo.mimes' => 'Format logo yang didukung JPG, JPEG, atau PNG.',

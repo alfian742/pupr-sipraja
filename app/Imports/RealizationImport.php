@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\LsPayment;
+use App\Models\Realization;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
-class LsPaymentImport implements
+class RealizationImport implements
     ToModel,
     WithHeadingRow,
     WithChunkReading,
@@ -31,90 +31,27 @@ class LsPaymentImport implements
     public int $timeout = 1200;
 
     private array $columns;
-    protected $userId;
+    private ?int $userId;
 
     protected array $headingMap = [
-        'skpd_code' => 'Kode SKPD',
-        'skpd_name' => 'Nama SKPD',
-
-        'sub_skpd_code' => 'Kode Sub SKPD',
-        'sub_skpd_name' => 'Nama Sub SKPD',
-
-        'function_code' => 'Kode Fungsi',
-        'function_name' => 'Nama Fungsi',
-
-        'sub_function_code' => 'Kode Sub Fungsi',
-        'sub_function_name' => 'Nama Sub Fungsi',
-
-        'affair_code' => 'Kode Urusan',
-        'affair_name' => 'Nama Urusan',
-
-        'field_affair_code' => 'Kode Bidang Urusan',
-        'field_affair_name' => 'Nama Bidang Urusan',
-
-        'program_code' => 'Kode Program',
-        'program_name' => 'Nama Program',
-
-        'activity_code' => 'Kode Kegiatan',
-        'activity_name' => 'Nama Kegiatan',
-
-        'sub_activity_code' => 'Kode Sub Kegiatan',
-        'sub_activity_name' => 'Nama Sub Kegiatan',
-
-        'account_code' => 'Kode Rekening',
-        'account_name' => 'Nama Rekening',
-
-        'document_number' => 'Nomor Dokumen',
-        'document_type' => 'Jenis Dokumen',
-        'transaction_type' => 'Jenis Transaksi',
-        'dpt_number' => 'Nomor DPT',
-
-        'document_date' => 'Tanggal Dokumen',
-        'document_description' => 'Keterangan Dokumen',
-
-        'realization_value' => 'Nilai Realisasi',
-        'deposit_value' => 'Nilai Setoran',
-
-        'nip' => 'NIP',
-        'personnel_name' => 'Nama Pegawai',
-        'saved_date' => 'Tanggal Simpan',
-
-        'spd_number' => 'Nomor SPD',
-        'spd_period' => 'Periode SPD',
-        'spd_value' => 'Nilai SPD',
-        'spd_stage' => 'Tahapan SPD',
-        'sub_stage_name' => 'Nama Sub Tahapan Jadwal',
-        'apbd_stage' => 'Tahapan APBD',
-
-        'spp_number' => 'Nomor SPP',
-        'spp_date' => 'Tanggal SPP',
-
-        'spm_number' => 'Nomor SPM',
-        'spm_date' => 'Tanggal SPM',
-
-        'sp2d_number' => 'Nomor SP2D',
-        'sp2d_date' => 'Tanggal SP2D',
-
-        'transfer_date' => 'Tanggal Transfer',
-        'sp2d_value' => 'Nilai SP2D',
+        'verification_date' => 'Tanggal Verifikasi',
+        'realization_contract_number' => 'Nomor Kontrak',
+        'realization_spm_number' => 'Nomor SPM',
     ];
 
     protected array $dateColumns = []; // Tidak ada kolom tanggal yang perlu diubah menjadi format Y-m-d
 
     protected array $numericColumns = [
-        'realization_value',
-        'deposit_value',
-        'spd_value',
         'sp2d_value',
     ];
 
-    public function __construct($userId = null)
+    public function __construct(?int $userId = null)
     {
         $this->userId = $userId;
 
         $this->columns = array_values(array_diff(
-            Schema::getColumnListing('ls_payments'),
-            ['id', 'created_at', 'updated_at']
+            Schema::getColumnListing('realizations'),
+            ['id', 'created_at', 'updated_at', 'created_by', 'updated_by']
         ));
     }
 
@@ -145,10 +82,6 @@ class LsPaymentImport implements
                 $value = $this->convertToNumeric($value);
             }
 
-            if ($dbColumn === 'nip' && $value !== null) {
-                $value = $this->sanitizeNip($value);
-            }
-
             $data[$dbColumn] = $value;
         }
 
@@ -162,7 +95,7 @@ class LsPaymentImport implements
             $data['updated_by'] = $this->userId;
         }
 
-        return new LsPayment($data);
+        return new Realization($data);
     }
 
     public function getCsvSettings(): array
@@ -199,7 +132,7 @@ class LsPaymentImport implements
 
     private function normalizeKey(string $key): string
     {
-        // Antisipasi BOM UTF-8 dari file CSV
+        // Antisipasi BOM dari CSV UTF-8
         $key = preg_replace('/^\xEF\xBB\xBF/', '', $key);
 
         // Antisipasi non-breaking space dari Excel
@@ -207,7 +140,12 @@ class LsPaymentImport implements
 
         $key = trim($key);
 
-        return strtolower(Str::slug(str_replace(' ', '_', $key), '_'));
+        return strtolower(
+            Str::slug(
+                str_replace(' ', '_', $key),
+                '_'
+            )
+        );
     }
 
     private function hasMeaningfulData(array $row): bool
@@ -236,18 +174,30 @@ class LsPaymentImport implements
             }
 
             if (is_numeric($value)) {
-                return Carbon::instance(ExcelDate::excelToDateTimeObject($value))->format('Y-m-d');
+                return Carbon::instance(
+                    ExcelDate::excelToDateTimeObject($value)
+                )->format('Y-m-d');
             }
 
             $value = trim((string) $value);
 
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-                return Carbon::createFromFormat('Y-m-d', $value)->format('Y-m-d');
+                return Carbon::createFromFormat(
+                    'Y-m-d',
+                    $value
+                )->format('Y-m-d');
             }
 
-            $normalized = str_replace(['.', '-', ' '], '/', $value);
+            $normalized = str_replace(
+                ['.', '-', ' '],
+                '/',
+                $value
+            );
 
-            return Carbon::createFromFormat('d/m/Y', $normalized)->format('Y-m-d');
+            return Carbon::createFromFormat(
+                'd/m/Y',
+                $normalized
+            )->format('Y-m-d');
         } catch (\Throwable $e) {
             return null;
         }
@@ -278,18 +228,5 @@ class LsPaymentImport implements
         }
 
         return is_numeric($value) ? (float) $value : 0;
-    }
-
-    private function sanitizeNip($value): ?string
-    {
-        $value = trim((string) $value);
-
-        // Buang leading apostrophe dari hasil export CSV/XLSX
-        $value = ltrim($value, "'");
-
-        // Hilangkan spasi
-        $value = preg_replace('/\s+/', '', $value);
-
-        return $value !== '' ? $value : null;
     }
 }

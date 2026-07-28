@@ -29,6 +29,8 @@ return [
     'article' => 'Artikel',
     'articles' => 'Artikel',
     'hero-carousels' => 'Carousel',
+    'public-information' => 'Informasi Publik',
+    'public-informations' => 'Informasi Publik',
     'public-information-portals' => 'Portal Informasi Publik',
     'ikli-survey' => 'Survei IKLI',
 

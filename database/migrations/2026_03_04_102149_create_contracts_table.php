@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
 
-            $table->date('contract_start_date')->nullable()->comment('Tanggal Mulai Kontrak');
-            $table->date('contract_end_date')->nullable()->comment('Tanggal Berakhir Kontrak');
+            $table->string('contract_start_date')->nullable()->comment('Tanggal Mulai Kontrak'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
+            $table->string('contract_end_date')->nullable()->comment('Tanggal Berakhir Kontrak'); // Supaya sesuai dengan data sumber yang ada di excel, maka kolom ini dibuat string, bukan date
 
             $table->string('contract_number')->nullable()->comment('Nomor Kontrak');
 
             $table->string('third_party_name')->nullable()->comment('Nama Rekanan / Pihak Ketiga');
 
-            $table->string('activity_code')->nullable()->comment('Kode Kegiatan');
-            $table->string('sub_account_code')->nullable()->comment('Kode Sub Rekening');
+            $table->string('sub_activity_code')->nullable()->comment('Kode Sub Kegiatan');
+            $table->string('account_code')->nullable()->comment('Kode Rekening');
 
             $table->text('activity_description')->nullable()->comment('Uraian Kegiatan / Pekerjaan');
             $table->string('department')->nullable()->comment('Bidang');
@@ -49,8 +49,8 @@ return new class extends Migration
             // Index lookup / filter
             $table->index('contract_number');
             $table->index('third_party_name');
-            $table->index('activity_code');
-            $table->index('sub_account_code');
+            $table->index('sub_activity_code');
+            $table->index('account_code');
             $table->index('department');
             $table->index('fund_source');
 

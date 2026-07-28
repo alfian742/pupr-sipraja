@@ -45,7 +45,7 @@
                                                 <div class="form-group">
                                                     <label for="description">Deskripsi Kategori</label>
                                                     <textarea rows="7" id="description" class="form-control @error('description') is-invalid @enderror"
-                                                        placeholder="Contoh: Kategori artikel yang membahas Web GIS, pemetaan digital, dan sistem informasi geografis."
+                                                        placeholder="Contoh: Kategori artikel yang membahas layanan publik, atau hal relevan dengan kegiatan PUPR."
                                                         name="description">{{ old('description', $data->description) }}</textarea>
                                                     @error('description')
                                                         <div class="invalid-feedback">{{ $message }}</div>

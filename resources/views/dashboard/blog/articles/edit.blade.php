@@ -2,7 +2,16 @@
     @php
         $pageTitle = 'Edit Artikel';
         $defaultThumbnail = asset('assets/images/placeholder.svg');
-        $currentThumbnail = $data->thumbnail ? asset('storage/' . \Illuminate\Support\Str::replaceStart('storage/', '', \Illuminate\Support\Str::replaceStart('uploads/', '', $data->thumbnail))) : $defaultThumbnail;
+        $currentThumbnail = $data->thumbnail
+            ? asset(
+                'storage/' .
+                    \Illuminate\Support\Str::replaceStart(
+                        'storage/',
+                        '',
+                        \Illuminate\Support\Str::replaceStart('uploads/', '', $data->thumbnail),
+                    ),
+            )
+            : $defaultThumbnail;
         $publishedAt = $data->published_at ? $data->published_at->format('Y-m-d\TH:i') : null;
     @endphp
 
@@ -237,10 +246,10 @@
                                                                     Draft
                                                                 </option>
                                                                 <option value="published" @selected(old('status', $data->status) == 'published')>
-                                                                    Published
+                                                                    Terbit
                                                                 </option>
                                                                 <option value="archived" @selected(old('status', $data->status) == 'archived')>
-                                                                    Archived
+                                                                    Arsip
                                                                 </option>
                                                             </select>
                                                             @error('status')

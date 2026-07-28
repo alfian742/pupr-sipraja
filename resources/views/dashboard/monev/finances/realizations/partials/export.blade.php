@@ -6,7 +6,7 @@
             <form action="{{ route('dashboard.monev.finances.realizations.export') }}" method="GET" id="exportForm">
                 <div class="row">
                     <div class="col-12 mb-2">
-                        Data yang akan diekspor ditentukan berdasarkan rentang <b>tanggal verifikasi</b>.
+                        Data yang akan diekspor ditentukan berdasarkan rentang <b>tanggal input</b>.
                         Silakan masukkan rentang tanggal untuk memulai proses ekspor data.
                     </div>
 

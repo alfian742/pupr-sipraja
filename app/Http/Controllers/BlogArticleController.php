@@ -67,11 +67,11 @@ class BlogArticleController extends Controller
                 })
                 ->addColumn('status_label', function ($data) {
                     if ($data->status === BlogArticle::STATUS_PUBLISHED) {
-                        return '<span class="badge badge-success">Published</span>';
+                        return '<span class="badge badge-success">Terbit</span>';
                     }
 
                     if ($data->status === BlogArticle::STATUS_ARCHIVED) {
-                        return '<span class="badge badge-secondary">Archived</span>';
+                        return '<span class="badge badge-secondary">Arsip</span>';
                     }
 
                     return '<span class="badge badge-warning">Draft</span>';

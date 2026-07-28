@@ -239,10 +239,10 @@
                                                                     Draft
                                                                 </option>
                                                                 <option value="published" @selected(old('status') == 'published')>
-                                                                    Published
+                                                                    Terbit
                                                                 </option>
                                                                 <option value="archived" @selected(old('status') == 'archived')>
-                                                                    Archived
+                                                                    Arsip
                                                                 </option>
                                                             </select>
                                                             @error('status')

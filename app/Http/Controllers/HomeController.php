@@ -22,7 +22,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $departments = Department::take(5)->get();
+        $departments = Department::query()
+            ->where('show_on_the_homepage', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
         $organizationProfile = OrganizationProfile::first();
         $faqs = FAQ::take(5)->get();
         $publicInformationPortals = PublicInformationPortal::all();
@@ -168,6 +172,9 @@ class HomeController extends Controller
             ->withQueryString();
 
         $categories = BlogCategory::active()
+            ->whereHas('articles', function ($query) {
+                $query->published();
+            })
             ->withCount([
                 'articles as published_articles_count' => function ($query) {
                     $query->published();
@@ -177,6 +184,31 @@ class HomeController extends Controller
             ->get();
 
         return view('landing.blog.index', compact('articles', 'categories'));
+    }
+
+    /**
+     * Kategori Blog Index.
+     */
+    public function blogCategoryIndex(Request $request)
+    {
+        $search = $request->input('search');
+
+        $categories = BlogCategory::active()
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%");
+            })
+            ->whereHas('articles', function ($query) {
+                $query->published();
+            })
+            ->withCount([
+                'articles as published_articles_count' => function ($query) {
+                    $query->published();
+                },
+            ])
+            ->ordered()
+            ->get();
+
+        return view('landing.blog.category-index', compact('categories'));
     }
 
     /**
@@ -206,6 +238,9 @@ class HomeController extends Controller
             ->withQueryString();
 
         $categories = BlogCategory::active()
+            ->whereHas('articles', function ($query) {
+                $query->published();
+            })
             ->withCount([
                 'articles as published_articles_count' => function ($query) {
                     $query->published();
@@ -230,6 +265,9 @@ class HomeController extends Controller
         $article->increment('views_count');
 
         $categories = BlogCategory::active()
+            ->whereHas('articles', function ($query) {
+                $query->published();
+            })
             ->withCount([
                 'articles as published_articles_count' => function ($query) {
                     $query->published();

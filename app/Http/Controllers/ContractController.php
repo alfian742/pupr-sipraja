@@ -29,12 +29,12 @@ class ContractController extends Controller
                 ['field' => 'action', 'label' => 'Aksi', 'type' => 'special'],
                 ['field' => 'history', 'label' => 'Riwayat', 'type' => 'special'],
 
-                ['field' => 'contract_start_date', 'label' => 'Tanggal Mulai', 'type' => 'date'],
-                ['field' => 'contract_end_date', 'label' => 'Tanggal Berakhir', 'type' => 'date'],
+                ['field' => 'contract_start_date', 'label' => 'Tanggal Mulai', 'type' => 'text'],
+                ['field' => 'contract_end_date', 'label' => 'Tanggal Berakhir', 'type' => 'text'],
                 ['field' => 'contract_number', 'label' => 'Nomor Kontrak', 'type' => 'text'],
                 ['field' => 'third_party_name', 'label' => 'Pihak III', 'type' => 'text'],
-                ['field' => 'activity_code', 'label' => 'Kode Kegiatan', 'type' => 'text'],
-                ['field' => 'sub_account_code', 'label' => 'Sub Rek', 'type' => 'text'],
+                ['field' => 'sub_activity_code', 'label' => 'Kode Sub Kegiatan', 'type' => 'text'],
+                ['field' => 'account_code', 'label' => 'Kode Rekening', 'type' => 'text'],
                 ['field' => 'activity_description', 'label' => 'Uraian Kegiatan', 'type' => 'text'],
                 ['field' => 'department', 'label' => 'Bidang', 'type' => 'text'],
                 ['field' => 'budget_value', 'label' => 'Anggaran', 'type' => 'numeric'],
@@ -117,8 +117,7 @@ class ContractController extends Controller
         |--------------------------------------------------------------------------
         | SUBQUERY REALISASI LS
         |--------------------------------------------------------------------------
-        | Ambil total SP2D dari LS Payment yang benar-benar terhubung ke realisasi
-        | dan hanya yang sudah terverifikasi.
+        | Ambil total SP2D dari LS Payment yang benar-benar terhubung ke realisasi.
         |--------------------------------------------------------------------------
         */
 
@@ -128,7 +127,6 @@ class ContractController extends Controller
                 'realizations.contract_id',
                 DB::raw('COALESCE(SUM(ls_payments.sp2d_value), 0) as realized_sp2d_value'),
             ])
-            ->whereNotNull('realizations.verification_date')
             ->groupBy('realizations.contract_id');
 
         /*
@@ -720,7 +718,7 @@ class ContractController extends Controller
             ]);
 
         return response()->json([
-            'message' => 'Export sedang diproses.',
+            'message' => 'Ekspor sedang diproses.',
             'token' => $token,
         ]);
     }
@@ -824,7 +822,7 @@ class ContractController extends Controller
                 ]);
 
             return response()->json([
-                'message' => 'Import sedang diproses.',
+                'message' => 'Impor sedang diproses.',
                 'token' => $token,
             ]);
         } catch (\Throwable $e) {
@@ -899,8 +897,8 @@ class ContractController extends Controller
             ->select(
                 'id',
                 'contract_number',
-                'sub_account_code',
-                'activity_code',
+                'account_code',
+                'sub_activity_code',
                 'activity_description'
             )
             ->whereNotNull('contract_number')
@@ -908,8 +906,8 @@ class ContractController extends Controller
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('contract_number', 'like', "%{$search}%")
-                        ->orWhere('sub_account_code', 'like', "%{$search}%")
-                        ->orWhere('activity_code', 'like', "%{$search}%")
+                        ->orWhere('account_code', 'like', "%{$search}%")
+                        ->orWhere('sub_activity_code', 'like', "%{$search}%")
                         ->orWhere('activity_description', 'like', "%{$search}%");
                 });
             })
@@ -921,10 +919,10 @@ class ContractController extends Controller
             'results' => $data->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'text' => $item->contract_number . ' | ' . $item->sub_account_code . ' | ' . $item->activity_code . ' | ' . $item->activity_description,
+                    'text' => $item->contract_number . ' | ' . $item->account_code . ' | ' . $item->sub_activity_code . ' | ' . $item->activity_description,
                     'contract_number' => $item->contract_number,
-                    'sub_account_code' => $item->sub_account_code,
-                    'activity_code' => $item->activity_code,
+                    'account_code' => $item->account_code,
+                    'sub_activity_code' => $item->sub_activity_code,
                     'activity_description' => $item->activity_description,
                 ];
             })->values(),

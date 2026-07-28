@@ -60,13 +60,27 @@ class RegionalPerformanceIndicatorController extends Controller
         $type = $config['type'];
 
         $routeList = (object)[
+            'index' => route("dashboard.performance-indicators.regional-indicators.$slug.index"),
             'create' => route("dashboard.performance-indicators.regional-indicators.$slug.create"),
             'showChart' => route("dashboard.performance-indicators.regional-indicators.$slug.show-chart"),
             'data' => route("dashboard.performance-indicators.regional-indicators.$slug.data"),
             'massDestroy' => route("dashboard.performance-indicators.regional-indicators.$slug.mass-destroy"),
         ];
 
-        return view('dashboard.performance-indicators.regional-indicators.index', compact('type', 'routeList'));
+        $measurementYears = RegionalPerformanceIndicator::query()
+            ->select('measurement_year')
+            ->whereNotNull('measurement_year')
+            ->distinct()
+            ->orderBy('measurement_year', 'desc')
+            ->get();
+
+        $filterApplied = request()->has('measurement_year')
+            || request()->has('period');
+
+        return view(
+            'dashboard.performance-indicators.regional-indicators.index',
+            compact('type', 'routeList', 'measurementYears', 'filterApplied')
+        );
     }
 
     // ============================= DATA =============================
@@ -80,6 +94,20 @@ class RegionalPerformanceIndicatorController extends Controller
             $model = $config['model'];
 
             $query = $model::query()->where('indicator_type', $config['type']);
+
+            if (request()->filled('measurement_year')) {
+                $query->where(
+                    'measurement_year',
+                    request('measurement_year')
+                );
+            }
+
+            if (request()->filled('period')) {
+                $query->where(
+                    'period',
+                    request('period')
+                );
+            }
 
             return DataTables::of($query)
                 ->editColumn('indicator_code', function ($data) {

@@ -30,6 +30,11 @@
                                             <i class="fa fa-plus"></i> <span class="d-none d-md-inline">Tambah</span>
                                         </a>
 
+                                        <button class="btn btn-primary" type="button" data-toggle="collapse"
+                                            data-target="#importWrapper" aria-expanded="false"
+                                            aria-controls="importWrapper"><i class="fa fa-upload"></i> <span
+                                                class="d-none d-md-inline">Impor</span></button>
+
                                         <button class="btn btn-success" type="button" data-toggle="collapse"
                                             data-target="#exportWrapper" aria-expanded="false"
                                             aria-controls="exportWrapper"><i class="fa fa-download"></i> <span
@@ -46,6 +51,16 @@
                                             <p class="mb-0">
                                                 Item terpilih: <span class="font-weight-bold" id="countItems">0</span>
                                             </p>
+                                            <form
+                                                action="{{ route('dashboard.monev.finances.realizations.mass-resolve-reference') }}"
+                                                method="POST" id="massResolveReferenceForm">
+                                                @csrf
+
+                                                <button class="btn btn-indigo" type="button" id="btnResolveReference"
+                                                    title="Cari Data Kontrak dan Data LS" disabled>
+                                                    <i class="fa fa-link"></i>
+                                                </button>
+                                            </form>
                                             <form
                                                 action="{{ route('dashboard.monev.finances.realizations.mass-verification') }}"
                                                 method="POST" id="massVerificationForm">
@@ -73,11 +88,13 @@
                                 </div>
 
                                 <div class="row mb-2">
+                                    @include('dashboard.monev.finances.realizations.partials.import')
                                     @include('dashboard.monev.finances.realizations.partials.export')
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table-striped table-bordered table-custom table-align-middle table">
+                                    <table
+                                        class="table-striped table-bordered table-custom table-align-middle table table-hover">
                                         <thead>
                                             <tr>
                                                 @foreach ($columnMaps as $column)
@@ -224,7 +241,7 @@
                         Auth::user()->role === 'head_of_department')
 
                     // =============================
-                    // REMOVE / VERIFY SELECTED ITEM
+                    // REMOVE / VERIFY / RESOLVE REFERENCE SELECTED ITEM
                     // =============================
                     const $checkAll = $('.check-all');
                     const $countItems = $('#countItems');
@@ -232,6 +249,8 @@
                     const $deleteForm = $('#massDestroyForm');
                     const $btnVerify = $('#btnVerify');
                     const $verifyForm = $('#massVerificationForm');
+                    const $btnResolveReference = $('#btnResolveReference');
+                    const $resolveReferenceForm = $('#massResolveReferenceForm');
 
                     function updateSelectedCount() {
 
@@ -244,6 +263,7 @@
                         $countItems.text(totalChecked);
                         $btnDelete.prop('disabled', totalChecked === 0);
                         $btnVerify.prop('disabled', totalChecked === 0);
+                        $btnResolveReference.prop('disabled', totalChecked === 0);
 
                         $checkAll.prop('checked', totalVisible > 0 && totalChecked === totalVisible);
                     }
@@ -330,6 +350,59 @@
                     @endif
 
                     // =============================
+                    // RESOLVE CONTRACT DAN LS
+                    // =============================
+                    $btnResolveReference.on('click', function(e) {
+                        e.preventDefault();
+
+                        const $checkedItems =
+                            $('.dataTables_scrollBody .check-item:checked');
+
+                        if ($checkedItems.length === 0) {
+                            swal(
+                                'Tidak ada data yang dipilih',
+                                'Silakan pilih minimal 1 data.',
+                                'info'
+                            );
+
+                            return;
+                        }
+
+                        swal({
+                            title: 'Hubungkan Data?',
+                            text: `Sistem akan mencari Data Kontrak dan Data LS ` +
+                                `untuk ${$checkedItems.length} data yang dipilih.`,
+                            icon: 'info',
+                            buttons: ['Batal', 'Ya, Hubungkan!'],
+                            dangerMode: false,
+                        }).then((willResolve) => {
+                            if (!willResolve) {
+                                return;
+                            }
+
+                            $resolveReferenceForm
+                                .find('input[name="ids[]"]')
+                                .remove();
+
+                            $checkedItems.each(function() {
+                                $resolveReferenceForm.append(
+                                    `<input type="hidden" name="ids[]" value="${$(this).val()}">`
+                                );
+                            });
+
+                            if (typeof blockWholePage === 'function') {
+                                blockWholePage(
+                                    'Mencari data kontrak dan pembayaran LS...'
+                                );
+                            }
+
+                            setTimeout(function() {
+                                $resolveReferenceForm.trigger('submit');
+                            }, 300);
+                        });
+                    });
+
+                    // =============================
                     // VERIFICATION ACTION
                     // =============================
                     $btnVerify.on('click', function(e) {
@@ -372,6 +445,231 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORT REALIZATION (TOKEN + POLLING)
+                |--------------------------------------------------------------------------
+                */
+
+                const form = document.getElementById('importForm');
+                const fileInput = document.getElementById('excelFile');
+                const fileLabel = document.querySelector('label[for="excelFile"]');
+                const btnImport = document.getElementById('btnImport');
+                const btnDownloadTemplate = document.getElementById('btnDownloadTemplate');
+
+                const checkImportUrl = "{{ route('dashboard.monev.finances.realizations.check-import') }}";
+
+                const allowedExtensions = ['xlsx', 'csv'];
+                const maxFileSize = 10 * 1024 * 1024; // 10 MB
+
+                function resetFileInput() {
+                    if (fileInput) fileInput.value = '';
+                    if (fileLabel) fileLabel.textContent = 'Pilih Berkas...';
+                    if (btnImport) btnImport.disabled = true;
+                }
+
+                function startImportPolling(token) {
+                    const startedAt = Date.now();
+                    const maxWaitMs = 10 * 60 * 1000;
+
+                    const interval = setInterval(() => {
+                        if (Date.now() - startedAt > maxWaitMs) {
+                            clearInterval(interval);
+                            unblockWholePage();
+
+                            swal({
+                                title: 'Impor masih diproses',
+                                text: 'Data cukup besar. Silakan cek kembali beberapa saat lagi.',
+                                icon: 'warning',
+                            });
+
+                            return;
+                        }
+
+                        fetch(`${checkImportUrl}?token=${encodeURIComponent(token)}`, {
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(r => r.json())
+                            .then(res => {
+                                if (res && res.ready) {
+                                    clearInterval(interval);
+                                    unblockWholePage();
+
+                                    swal({
+                                        title: 'Impor Berhasil',
+                                        text: 'Data realisasi berhasil diimpor ke sistem.',
+                                        icon: 'success',
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                }
+
+                                if (res && res.status === 'not_found') {
+                                    clearInterval(interval);
+                                    unblockWholePage();
+
+                                    swal({
+                                        title: 'Status impor tidak ditemukan',
+                                        text: 'Token impor tidak valid atau sudah kedaluwarsa.',
+                                        icon: 'error',
+                                    });
+                                }
+                            })
+                            .catch(() => {
+                                // silent fail agar polling tetap berjalan
+                            });
+                    }, 2000);
+
+                    return interval;
+                }
+
+                if (form && fileInput && fileLabel && btnImport) {
+                    btnImport.disabled = true;
+
+                    fileInput.addEventListener('change', () => {
+                        const file = fileInput.files[0];
+
+                        if (!file) {
+                            resetFileInput();
+                            return;
+                        }
+
+                        const fileExt = file.name.split('.').pop().toLowerCase();
+
+                        if (!allowedExtensions.includes(fileExt)) {
+                            swal({
+                                title: 'Format Tidak Valid',
+                                text: 'Harap unggah berkas dengan format ".xlsx" atau ".csv".',
+                                icon: 'error',
+                                button: 'OK'
+                            });
+
+                            resetFileInput();
+                            return;
+                        }
+
+                        if (file.size > maxFileSize) {
+                            swal({
+                                title: 'Ukuran Terlalu Besar',
+                                text: 'Ukuran berkas terlalu besar. Maksimum 10 MB.',
+                                icon: 'error',
+                                button: 'OK'
+                            });
+
+                            resetFileInput();
+                            return;
+                        }
+
+                        const lastDotIndex = file.name.lastIndexOf('.');
+                        const baseName = lastDotIndex > -1 ?
+                            file.name.substring(0, lastDotIndex) :
+                            file.name;
+
+                        const truncatedName = baseName.length > 14 ?
+                            baseName.substring(0, 14) + '...' :
+                            baseName;
+
+                        fileLabel.textContent = `${truncatedName}.${fileExt}`;
+                        btnImport.disabled = false;
+                    });
+
+                    btnImport.addEventListener('click', (e) => {
+                        e.preventDefault();
+
+                        if (btnImport.disabled) return;
+
+                        swal({
+                            title: 'Impor Data?',
+                            text: 'Data akan diproses di server. Setelah selesai, halaman akan diperbarui.',
+                            icon: 'warning',
+                            buttons: ['Batal', 'Ya, Impor!'],
+                        }).then((willImport) => {
+                            if (!willImport) return;
+
+                            blockWholePage('Proses impor sedang disiapkan...');
+
+                            const formData = new FormData(form);
+
+                            fetch(form.action, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'Accept': 'application/json',
+                                    }
+                                })
+                                .then(async (response) => {
+                                    const data = await response.json();
+
+                                    if (!response.ok) {
+                                        throw data;
+                                    }
+
+                                    return data;
+                                })
+                                .then((res) => {
+                                    if (!res.token) {
+                                        throw new Error('Token impor tidak ditemukan.');
+                                    }
+
+                                    blockWholePage('Impor sedang diproses di server...');
+                                    startImportPolling(res.token);
+                                })
+                                .catch((error) => {
+                                    unblockWholePage();
+
+                                    let message = 'Terjadi kesalahan saat memulai proses impor.';
+
+                                    if (error && error.message) {
+                                        message = error.message;
+                                    }
+
+                                    if (error && error.errors) {
+                                        const firstKey = Object.keys(error.errors)[0];
+
+                                        if (firstKey) {
+                                            message = error.errors[firstKey][0];
+                                        }
+                                    }
+
+                                    swal({
+                                        title: 'Gagal Memulai Impor',
+                                        text: message,
+                                        icon: 'error',
+                                    });
+                                });
+                        });
+                    });
+                }
+
+                // Unduh Template (jaga-jaga elemen tidak ada)
+                if (btnDownloadTemplate) {
+
+                    btnDownloadTemplate.addEventListener('click', function(e) {
+
+                        e.preventDefault();
+
+                        const downloadUrl = this.href;
+
+                        setTimeout(() => {
+
+                            blockWholePage("Mengunduh templat...");
+
+                            // mulai download
+                            window.location.href = downloadUrl;
+
+                            // unblock singkat (download tidak memberi callback)
+                            setTimeout(() => {
+                                unblockWholePage();
+                            }, 1000);
+
+                        }, 300);
+
+                    });
+
+                }
+
                 /*
                 |--------------------------------------------------------------------------
                 | EXPORT REALIZATION (TOKEN + POLLING)
