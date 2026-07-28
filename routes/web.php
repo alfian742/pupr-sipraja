@@ -104,6 +104,9 @@ Route::middleware(['auth', 'verified', 'role:superadmin,admin,operator,head_of_d
                     Route::get('/data-chart', [RegionalPerformanceIndicatorController::class, 'getDataChart'])->name('chart');
                     Route::get('/show-chart', [RegionalPerformanceIndicatorController::class, 'showChart'])->name('show-chart');
                     Route::post('/mass-destroy', [RegionalPerformanceIndicatorController::class, 'massDestroy'])->name('mass-destroy');
+                    Route::get('/download-export/{token}', [RegionalPerformanceIndicatorController::class, 'downloadExport'])->name('download-export');
+                    Route::get('/check-export', [RegionalPerformanceIndicatorController::class, 'checkExport'])->name('check-export');
+                    Route::get('/export', [RegionalPerformanceIndicatorController::class, 'export'])->name('export');
                     Route::get('/create', [RegionalPerformanceIndicatorController::class, 'create'])->name('create');
                     Route::post('/', [RegionalPerformanceIndicatorController::class, 'store'])->name('store');
                     Route::get('/{id}/edit', [RegionalPerformanceIndicatorController::class, 'edit'])->name('edit');
