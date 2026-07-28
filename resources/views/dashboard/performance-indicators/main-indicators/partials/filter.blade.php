@@ -91,9 +91,9 @@
                                 <select id="export_format" name="export_format"
                                     class="custom-select @error('export_format') is-invalid @enderror" required
                                     aria-label="Format Ekspor Data">
-                                    <option value="csv" {{ request('export_format') == 'csv' ? 'selected' : '' }}>
+                                    {{-- <option value="csv" {{ request('export_format') == 'csv' ? 'selected' : '' }}>
                                         CSV
-                                    </option>
+                                    </option> --}}
                                     <option value="xlsx" {{ request('export_format') == 'xlsx' ? 'selected' : '' }}>
                                         XLSX
                                     </option>
