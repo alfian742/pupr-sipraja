@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Contract;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -41,6 +42,8 @@ class ContractExport implements
         'department',
         'budget_value',
         'contract_value',
+        'sp2d_value',
+        'balance_value',
         'fund_source',
         'bast_number',
     ];
@@ -50,6 +53,8 @@ class ContractExport implements
     private array $numericColumns = [
         'budget_value',
         'contract_value',
+        'sp2d_value',
+        'balance_value',
     ];
 
     private array $headingsMap = [
@@ -63,6 +68,8 @@ class ContractExport implements
         'department' => 'Bidang',
         'budget_value' => 'Anggaran',
         'contract_value' => 'Nilai Kontrak',
+        'sp2d_value' => 'Realisasi',
+        'balance_value' => 'Saldo',
         'fund_source' => 'Sumber Dana',
         'bast_number' => 'Nomor BAST',
     ];
@@ -76,9 +83,15 @@ class ContractExport implements
         $this->endDate = $this->normalizeFilterDate($endDate);
         $this->format = strtolower($format) === 'csv' ? 'csv' : 'xlsx';
 
-        $this->columns = array_values(array_diff(
-            Schema::getColumnListing('contracts'),
-            ['id', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        $this->columns = array_values(array_merge(
+            array_diff(
+                Schema::getColumnListing('contracts'),
+                ['id', 'created_at', 'updated_at', 'created_by', 'updated_by']
+            ),
+            [
+                'sp2d_value',
+                'balance_value',
+            ]
         ));
     }
 
@@ -89,14 +102,62 @@ class ContractExport implements
             $this->columns
         ));
 
+        /*
+        |--------------------------------------------------------------------------
+        | SUBQUERY REALISASI LS
+        |--------------------------------------------------------------------------
+        | Ambil total SP2D dari LS Payment yang benar-benar terhubung ke realisasi.
+        |--------------------------------------------------------------------------
+        */
+
+        $realizationSubquery = DB::table('realizations')
+            ->leftJoin('ls_payments', 'ls_payments.id', '=', 'realizations.ls_payment_id')
+            ->select([
+                'realizations.contract_id',
+                DB::raw('COALESCE(SUM(ls_payments.sp2d_value), 0) as realized_sp2d_value'),
+            ])
+            ->groupBy('realizations.contract_id');
+
+        /*
+        |--------------------------------------------------------------------------
+        | KOLOM CONTRACT
+        |--------------------------------------------------------------------------
+        */
+
+        $contractColumns = array_values(array_diff(
+            $selectColumns,
+            [
+                'sp2d_value',
+                'balance_value',
+            ]
+        ));
+
+        $contractColumns = array_map(
+            fn($column) => "contracts.{$column}",
+            $contractColumns
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | BASE QUERY
+        |--------------------------------------------------------------------------
+        */
+
         $query = Contract::query()
-            ->select($selectColumns)
-            ->orderBy('created_at')
-            ->orderBy('id');
+            ->select($contractColumns)
+            ->addSelect([
+                DB::raw('COALESCE(realization_totals.realized_sp2d_value, 0) as sp2d_value'),
+                DB::raw('(COALESCE(contracts.contract_value, 0) - COALESCE(realization_totals.realized_sp2d_value, 0)) as balance_value'),
+            ])
+            ->leftJoinSub($realizationSubquery, 'realization_totals', function ($join) {
+                $join->on('contracts.id', '=', 'realization_totals.contract_id');
+            })
+            ->orderBy('contracts.created_at')
+            ->orderBy('contracts.id');
 
         if (!empty($this->startDate)) {
             $query->where(
-                'created_at',
+                'contracts.created_at',
                 '>=',
                 Carbon::parse($this->startDate)->startOfDay()
             );
@@ -104,7 +165,7 @@ class ContractExport implements
 
         if (!empty($this->endDate)) {
             $query->where(
-                'created_at',
+                'contracts.created_at',
                 '<',
                 Carbon::parse($this->endDate)->addDay()->startOfDay()
             );
