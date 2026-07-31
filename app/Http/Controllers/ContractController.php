@@ -577,11 +577,7 @@ class ContractController extends Controller
             ->values()
             ->map(function ($item) use ($data) {
                 return (object) [
-                    'sp2d_date' => $item->lsPayment->sp2d_date
-                        ? Carbon::parse($item->lsPayment->sp2d_date)
-                        ->locale(app()->getLocale())
-                        ->translatedFormat('d F Y')
-                        : '-',
+                    'sp2d_date' => $item->lsPayment->sp2d_date ?? '-',
                     'contract_number' => $data->contract_number ?? '-',
                     'sp2d_number' => $item->lsPayment->sp2d_number ?? '-',
                     'document_description' => $item->lsPayment->document_description ?? '-',
